@@ -1,0 +1,64 @@
+---
+title: 'LiDAR vs Field VWI'
+subtitle: 'Channel width, valley width, & valley width index'
+author: 
+- "Bernard Romey, bnar@rom3y.com"
+date: "Jan 17, 2017"
+fontsize: 11pt
+output:
+  pdf_document:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+bibliography: IP Model.bib
+---
+--------------------
+
+## VWI Analysis
+
+The objective of this work is to calibrate the LiDAR DEM derived Valley Width Index (VWI) with field data so that a calibration function can be used to correct for the difference between DEM and field VWI.  Data analysis from other studies *[@grant_1995, @burnett_2007, @moore_2002, @hall_2007]* indicates that DEM VWI should be calibrated based on field data.  Thus, with a subset of our stream reaches, we analyzed the VWI to identify the recommended threshold (2.9) between constrained and unconstrained channels *[@grant_1995]*.  The VWI calibration will be used to create habitat suitability threshold curves for both chum and pink salmon.  All data analysis was completed in the R statistic language *[@RCoreTeam17]*.
+
+## Channel Width
+
+Field channel width was compared with LiDAR *hnl2* channel width for 47 sites (Fig 1).  The field channel width was measured with a survey grade level and was observed at one location per reach.  The LiDAR channel width is an average for a 100-m reach that encompass the channel morphology site surveyed in 2015.  The field channel width and the *hnl2* channel width are significantly correlated ($r^2=0.95, p<0.001$).  The relationship is not linear, as expected, since the *hnl2* width is calculated from a regional power equation that uses basin area and precipitation.  No attempt will be made to calibrate channel width due to 1) limited field data for comparison (only one site per reach), and 2) limited justification for changing the current model based on regional published work.
+
+![LiDAR channel width (m) compared with field channel width (m)](Fig/BFW.png)
+
+## Valley Width
+
+Field valley width was compared with LiDAR *hnl2* valley with for a subsample of $n=33$ channel reaches with anadromous fish access (Fig 2).  Field valley width was measured optically in ESRI ArcGIS using the measure tool. The LiDAR *hnl2* valley width is a mean of 100-m reach length that encompasses the above mentioned channel morphology sites.  
+
+![LiDAR valley width (m) compared with optical valley width (m)](Fig/VW.png)
+
+## Valley Width Index (VWI)
+
+Field valley width index (VWI) and LiDAR *hnl2* VWI were modeled with a matching set of 33 anadromous sites from both the channel with and valley width data so that a function could be created for calibration (Fig 3).  Valley width index is calculated by dividing the valley width by the active channel width.  Thus, VWI can never be less than one.  Based on the model, when the optical field VWI is 2.9 the LiDAR *hnl2* VWI threshold for constrained to unconstrained is 3.09.
+
+### Model assumptions
+
+The valley width and the VWI models were both significantly correlated ($p<0.001$).  The residuals plots for both models also indicated that the assumptions of equal variance and normality were met.  Although, for the VWI model, one site had a leverage > 1 indicating it was most likely an outlier. This site was left in the analysis because it was not an outlier for the valley width model.
+
+![LiDAR valley width index (VWI) compared with optical field VWI (m)](Fig/VWI.png)
+
+## Resource Selection Ratio
+
+The calibrated VWI (*3.09*) was used to guide the classification of constrained and unconstrained channels that was used in a selection ratio analysis.  A resource selection function reduces to a selection ratio when habitat is characterized by a single habitat variable *[@manly_2002]*.  The total number of redds observed and the total area surveyed were determined for each of the 5,000 bootstrapped samples for each species, and type.  Selection ratios were calculated *[@manly_2002]*:
+
+(1) $w_i=o_i/p_i$
+
+where *i* was the type, $o_i$ was the number of redds observed in each type *i* divided by the total number of redds observed in all types, and $p_i$ was the area surveyed of type *i* divided by the total area surveyed of all types. We used $\alpha=0.1$ with 5 and 95 percentiles for the single pairwise difference between selection ratios.
+
+Selection ratios can range from zero to infinity with a ratio of one indicating that no selection has occurred.  If the confidence interval does not contain one, the null hypothesis that the salmonid species selected for the habitat type in proportion to availability is rejected *[@manly_2002]*.  Thus, a selection ratio significantly <1 indicates avoidance, and a selection ration significantly >1 indicates selection for that habitat type at a higher proportion than available.
+
+Pink salmon used unconstrained channels over constrained channels during 2015, and selected for unconstrained channel in proportion to availability while avoiding constrained channels in 2016 (Fig 4). Chum salmon selection ratio for constrained and unconstrained habitat was not significantly different than pink salmon during both 2015 and 2016. 
+
+
+![Chum and pink salmon selection ratios ($w_i$) for channel constraint during 2015 and 2016 field season (Constrained canyon = CC, Unconstrained valley = UV)](Fig/Wi_vwi.png)
+
+
+__________________
+
+\pagebreak
+
+# References
+
