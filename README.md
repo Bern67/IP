@@ -1,2 +1,3 @@
 # IP
-Intrinsic Potential
+Chum and pink salmon intrinsic potential model
+[] What the ....
