@@ -177,7 +177,7 @@ plot(p$IncNodePurity,type = "h",
 text(x=c(1:28),p$IncNodePurity,p$n,cex=.5)
 
 ## Partial dependence plots
-par(mfrow=c(2,2))
+par(mfrow=c(2,2),oma=c(1,1,1,0))
 partialPlot(p15.rf,p15d,OUT_DIST)# presence of pink redd is associated with out dist > 12
 abline(v=12.5,lty=2,col="grey")
 partialPlot(p15.rf,p15d,VWI_Floor)#The presence of pink redds is associated with VWI > 4
@@ -185,9 +185,12 @@ abline(v=40,lty=2,col="grey")
 partialPlot(p15.rf,p15d,GRADIENT)# redd density quickly decreases when slope > ~ 2.4%
 abline(v=0.022,lty=2,col="grey")
 partialPlot(p15.rf,p15d,MEANANNCMS)# redd density highest when cms is < 2.2 cms
-
+mtext("Logit probability presence?", side=2, outer=TRUE, line=-1) 
 ## Valley width, VWI, and Val constraint all have positive relationships with redd density. 
 ## Such that an increase in valley constraint result in an increase in redd density
+
+#library(plotmo)
+#plotmo(p15.rf, pmethod="partdep") # plot partial dependencies
 
 #round(importance(p15.rf),2) # importance of each predictor; higher values more important
 
@@ -201,15 +204,16 @@ set.seed(67)
 varImpPlot(p16.rf,sort=T,n.var=min(28,nrow(p16.rf$importance)), cex=1,#use grey scale
            main = "Predictor Importance (Pink 2016)")
 abline(v=2.85,lty=2,col="grey")
-plot(p16.rf,type="l",log='y')#Cross validation error; How many random trees to use for good performance
+plot(p16.rf,type="l")#Cross validation error; How many random trees to use for good performance
 ## Error rate or MSE
 
 ## Partial dependence plots; predicted outcome using X, after averaging out all other predictors
-par(mfrow=c(2,2))
+par(mfrow=c(2,2),oma=c(1,1,1,1))#oma creates margin size for lines of text
 partialPlot(p16.rf,p16,FitElev)# redd presence increases at 25, max out at 75(randomForest.pdf,p.12)
 partialPlot(p16.rf,p16,GRADIENT)
 partialPlot(p16.rf,p16,VWI_Floor)
 partialPlot(p16.rf,p16,MEANANNCMS)
+mtext("Logit probability presence", side=2, outer=TRUE, line=-1) 
 
 #round(importance(p16.rf),2) # importance of each predictor
 
@@ -222,15 +226,16 @@ set.seed(67)
 varImpPlot(c15.rf,sort=T,n.var=min(28,nrow(c15.rf$importance)),
            main = "Variable Importance (Chum 2015")
 abline(v=2.7,lty=2,col="grey")
-plot(c15.rf,log='y')#Cross validation error
+plot(c15.rf)#Cross validation error
 
 ## Partial dependence plots
-par(mfrow=c(2,2))
+par(mfrow=c(2,2),oma=c(1,1,1,0))
 partialPlot(c15.rf,c15,Shear)
 abline(v=50,lty=2,col="grey")
 partialPlot(p16.rf,p16,GRADIENT)
 partialPlot(p16.rf,p16,MEANANNCMS)
 partialPlot(p16.rf,p16,VWI_Floor)# Use to verify constrained channel difference (randomForest.pdf,p.12)
+mtext("Logit probability presence", side=2, outer=TRUE, line=-1) 
 
 #round(importance(c15.rf),2) # importance of each predictor
 ##RF plot of variable importance
@@ -250,7 +255,7 @@ set.seed(167)
                         importance=T, ntree=5000))# view results
 varImpPlot(c16.rf,sort=T,n.var=min(28,nrow(c16.rf$importance)),#significant predictors of redd density
            main = "Variable Importance (Chum 2016)")# Biased toward correlated predictors, compare with party below
-plot(c16.rf,log='y')
+plot(c16.rf)
 
 (1-c16.rf$confusion[2,3])*100#sensitivity = percent present correctly classified (Cutler 2007)
 (1-c16.rf$confusion[1,3])*100#specifity = percent absent correctly classified (Cutler 2007)
@@ -267,7 +272,7 @@ plot(p3$MeanDecreaseGini,type = "h",
 text(x=c(1:28),p3$MeanDecreaseGini,p3$n,cex=.5)
 
 ## Partial dependence plots
-par(mfrow=c(2,2))
+par(mfrow=c(2,2),oma=c(1,1,1,0))
 partialPlot(c16.rf,c16,SRC_DIST)
 abline(v=c(6,12),lty=2,col="grey")#
 partialPlot(c16.rf,c16,MEANANNCMS)
@@ -276,7 +281,7 @@ partialPlot(c16.rf,c16,GRADIENT)
 abline(v=c(.006,.014),lty=2,col="grey")
 partialPlot(c16.rf,c16,VWI_Floor)# Use to verify constrained channel difference (randomForest.pdf,p.12)
 abline(v=c(3.1,9),lty=2,col="grey")
-
+mtext("Logit probability of presence", side=2, outer=TRUE, line=-1) 
 
 
 #----------------------------------------------------
