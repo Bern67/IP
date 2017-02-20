@@ -4,6 +4,10 @@
 
 ## Assumptions for equal variance and normality not met for all habitat data
 ## Thus, exploratory analysis
+## Weather to use variance or co-variance matrix:
+## If all variable are the same unit of measure, use covaraince matrix. If all variable are different
+## units of measure, need to standardize variables and use correlation matrix if the data is somewhat multinormal
+## Default is correlation matrix, so only need to scale (standardize to Z-score)
 
 ##-----Know your data ----
 hnl2 <- read.csv("D:/R/IP16/hnl2.csv", header=T)
@@ -11,7 +15,7 @@ r <- read.csv("redd.csv")
 r <- r[,-1]
 
 r$plh15 <- as.factor(with(r,ifelse(r$pr15 <= 3.5, 'l',#low; based on GRADIENT of 0.016,RPRT
-                                   ifelse(r$pr15 >3.5 , 'h',""))))#high
+           ifelse(r$pr15 >3.5 , 'h',""))))#high
 
 par(mfrow=c(2,2))
 boxplot(hnl2[,-1], main="Raw data")
@@ -19,8 +23,10 @@ boxplot(sqrt(hnl2[,-1]), main="sqrt transformed")
 boxplot(scale(hnl2[,-1],center=T), main="Standardized & Centered")
 boxplot(scale(sqrt(hnl2[,-1])),center=F, main="sqrt & scaled to Z-score")
 
-round(var(hnl2[,-1]),2)#variance & covariance matrix (covariance is diagonal)
-round(var(scale(hnl2[,-1])),2)#standardized variance & covariance matrix = correlation matrix
+round(cov(hnl2[,-1]),2)# Covariance matrix: variance & covariance (covariance is diagonal)
+##Correlation matrix - all diagonal elements are equal to 1
+round(var(scale(hnl2[,-1])),2)#standardized variance matrix = correlation matrix
+round(cor(hnl2[,-1]),2)#correlation matrix; default method="pearson"
 
 ## Assumptions for PCA:
 ## Multivariate normality:
@@ -70,7 +76,8 @@ for (i in 1:ncol(cp)){
 
 ##Different multi-normality tests from the MVN package
 ip <- hnl2$ip
-h <- hnl2[,-1]#No ip number column
+h <- hnl2[,-c(1,6)]#No ip number column, & FROM_DIST is a redundant variable; see line 111
+names(h)
 
 ##Multinorm test
 mardiaTest(h,qqplot=T)# Mardia (1970) using squared Mahalanobis distance
@@ -94,22 +101,26 @@ res2 <- mvOutlier(h, qqplot = TRUE, method = "quan")
 res2 <- mvOutlier(h, qqplot = TRUE, method = "adj.quan")#New dataset with declared outliers removed
 
 source("cor.matrix.r")#Linear combinations
-cor.matrix(scale(sqrt(hnl2[,c("SRC_DIST","DEPTH_M","WIDTH_M","AREA_SQKM","MEANANNCMS")]))) #PC1+; Meananncms
-cor.matrix(hnl2[,c("StrmPow","FlowVel","Shear","d50", "GRADIENT")]) #PC1-; Gradient
-cor.matrix(scale(sqrt(hnl2[,c("ValCnstrnt","VWI_Floor","VAL_WIDTH","FP_WIDTH")]))) #PC2-; ValCnstrnt
-cor.matrix(hnl2[,c("GEP_DEL","GEP","BFQ","GEP_Cum")])#PC2+; BFQ or GEP
+cor.matrix(scale(sqrt(h[,c("OUT_DIST","SRC_DIST","DEPTH_M","WIDTH_M","AREA_SQKM","MEANANNCMS")]))) #PC1+; Meananncms
+cor.matrix(h[,c("StrmPow","FlowVel","Shear","d50", "GRADIENT")]) #PC1-; Gradient
+cor.matrix(scale(sqrt(h[,c("ValCnstrnt","VWI_Floor","VAL_WIDTH","FP_WIDTH")]))) #PC2-; ValCnstrnt
+cor.matrix(h[,c("GEP_DEL","GEP","BFQ","GEP_Cum")])#PC2+; BFQ or GEP
+## OUT_DIST = Distance downstream to estuary
+## SRC_DIST = Distance upstream of reach
+## FROM_DIST = Distance donwnstream to confluance, or estuary for mainstem, thus removed -> same as OUT_DIST for all but 10 sites
+
+## From Distance & Out Distance are same;is distance to confluance node, this explains the multiple correlation lines with SRC_DIST
 
 ##*******************
 ## Transformations
 ##*******************
-
 library(mvnormtest)
 mshapiro.test(t(h)) #data has to be a matrix and has to be transposed
 ## If p < .05, then sig dif than normal distribution
 
 #Continuous predictor (log = ln;natural log, log10 = log base 10)
-hb <- h[,c('WIDTH_M','BFQ')]
-h_ln <- log(h[,-c(10,17)]+1)
+hb <- h[,c('WIDTH_M',"BFQ")]
+h_ln <- log(h[,-c(9,16)]+1)
 
 th <-  cbind(h_ln,hb)#transformed habitat data
 rm(h_ln,hb)
@@ -148,8 +159,8 @@ require(MASS) #loads the PCA package
 rownames(th)<-ip#changes row number to site number for biplot site number (must be unique)
 (summary(pca <- princomp(scale(th)))) #creates a PC matrix using the correlation matrix; scales & centers different variables
 # proportion of variance is eigenvalues for each PC
-biplot(pca, main = "Biplot", arrow.len=0.05,expand=.75, cex=c(.75,.75), col=c("grey","darkgreen"),
-       xlab="PC1 (39.2%)", ylab="PC2 (19.0%)")
+biplot(pca, main = "Biplot", arrow.len=0.05,expand=0.9, cex=c(.75,.75), col=c("grey","darkgreen"),
+       xlab="PC1 (39.9%)", ylab="PC2 (19.3%)")
 abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
 abline(h=(seq(0,100,25)), col="lightgray", lty="dotted")
 mtext('Unconstrained  <----->  Constrained', side=4, line=-1)
@@ -162,7 +173,7 @@ st <- r[,'st']
 rownames(th)<-st
 (summary(pca <- princomp(scale(th)))) #creates a PC matrix using the c
 biplot(pca, main = "Biplot", arrow.len=0.05,expand=.95, cex=c(.75,.75), col=c("darkgreen","grey"),
-       xlab="PC1 (39.2%)", ylab="PC2 (19.0%)")
+       xlab="PC1 (39.9%)", ylab="PC2 (19.3%)")
 abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
 abline(h=(seq(0,100,25)), col="lightgray", lty="dotted")
 
@@ -182,7 +193,7 @@ summary(pca)# compare to proportion of variane
 #Expected first eigenvalue (PC variance) by random is 0.61, if the 1st eigenvalue from your data > 0.61, keep it
 #Repeat the above until the eigenvalues from your data is < the eigenvalues generated by random
 ## The broken stick model indicated that the PCA was reduced to 3 principal components that make up
-(tv <- 0.3915186+0.1901136+0.1467672)
+(tv <- 0.3992822+0.1930861+0.1345968)
 ## a total variance of 73%.
 
 ## Shepard diagram; compare euclidean distances
@@ -193,7 +204,7 @@ plot(euc,euc.1,main="PC=3",col="darkgreen", xlab="Distance in Multidimentional s
      ylab="Distance in Reduced space") # Shepard diagram
 
 ## Bubbleplot of Pink redd density for 2015
-plot(pca$scores[ ,1], pca$scores[ ,2], type="p",xlab="PCA1 (39.2%)", ylab="PCA2 (19.0%)")
+plot(pca$scores[ ,1], pca$scores[ ,2], type="p",xlab="PCA1 (39.9%)", ylab="PCA2 (19.3%)")
 symbols(pca$scores[ ,1], pca$scores[ ,2],circles=r$pr15,inches=.5, fg = "white", 
         bg = "grey", add=T, lwd=2)  
 abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
@@ -203,19 +214,43 @@ mtext('Unconstrained  <----->  Constrained', side=4, line=1)
 ## Pink 2015 low and high density
 r$plh15 <- as.factor(r$plh15) #Need to change character to factor for pch to work as numeric
 plot(pca$scores[,1], pca$scores[,2], pch=c(17,16)[r$plh15],col=c("darkgreen","darkgrey")[r$plh15], 
-     lwd=2,cex=1.2,xlab="PCA 1 (39.2%)", ylab="PCA 2 (19.0%)")
+     lwd=2,cex=1.2,xlab="PCA 1 (39.9%)", ylab="PCA 2 (19.3%)")
 legend("topright",c("L","H"),pch=c(16,17),cex=1,col=c("grey","darkgreen"),inset=.01) 
 title(main="2015 Pink L/H Density")
 abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
 abline(h=(seq(0,100,25)), col="lightgray", lty="dotted")
 
+## Redd density
+par(mfrow=c(2,2))
+plot(r$pr15,pca$scores[,1],pch=16,col="blue",ylab="PC 1",xlab = "Pink redd density 2015")
+plot(r$pr15,pca$scores[,2],pch=16,col="blue",ylab = "PC 2", xlab="Pink redd density 2015")
+plot(r$cr15,pca$scores[,1],pch=17,col="darkgreen",ylab = "PC 1", xlab="Chum redd density 2015")
+plot(r$cr15,pca$scores[,2],pch=17,col="darkgreen",ylab = "PC 2", xlab="Chum redd density 2015")
+## Both chum and pink redd density incresed toward medium size, low gradient habitat (PC 1), &
+## unconfined channels (PC2) - High ave flows
+## Difference is starting low densities for both species for PC 1; chum primarily low gradient large hab
+## pinks evenly for both large and small habitat.
 
-#--------------------------------
-## Pink 2015 P/A
+par(mfrow=c(2,2))
+plot(r$pr16,pca$scores[,1],pch=16,col="blue",ylab = "PC 1", xlab="Pink redd density 2016")
+plot(r$pr16,pca$scores[,2],pch=16,col="blue",ylab = "PC 2", xlab="Pink redd density 2016")
+plot(r$cr16,pca$scores[,1],pch=17,col="darkgreen",ylab = "PC 1", xlab="Chum redd density 2016")
+plot(r$cr16,pca$scores[,2],pch=17,col="darkgreen",ylab = "PC 2", xlab="Chum redd density 2016")
+## Both chum and pink redd density increased toward larger low gradienet habitat (PC1) &
+## unconfined channels (PC 2) - Low ave flows
+
+
+## Factor analysis: 
+## Are the correlations amongst variable explained by the common factors? 
+factanal(th,16)# compare with PCA loadings
+## Loadings such as depth, width, MAQ, gradient create habitat size on factor 1
+## Factor 2(PC 2) is loaded primarily with VWI, Val const, GEP
+
+## ----- Pink 2015 P/A -----
 par(mfrow=c(2,2))
 r$ppa15 <- as.factor(r$ppa15) #Need to change character to factor for pch to work as numeric
 plot(pca$scores[,1], pca$scores[,2], pch=c(16,17)[r$ppa15], col=c("darkgrey","darkgreen")[r$ppa15], 
-              lwd=2, cex=1.2, xlab="PCA 1 (39.2%)", ylab="PCA 2 (19.0%)")
+              lwd=2, cex=1.2, xlab="PCA 1 (39.9%)", ylab="PCA 2 (19.3%)")
 legend("topright",c("A","P"), pch=c(16,17), cex=1, col=c("grey","darkgreen"),inset=.01) 
 title(main="2015 Pink absent/present")
 abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")

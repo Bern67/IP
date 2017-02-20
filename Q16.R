@@ -30,62 +30,58 @@ redd <- redd[,-1]
 #rm(ip_fsh)
 
 ## Maps using shapefile
-library(maptools) # for shapefiles
-## WGS 1984 projection
-crk<-readShapeLines("D:/R/KetaIP16/Shapefile/str.shp",
-  proj4string=CRS("+proj=longlat"), verbose = T
-)
-summary(crk)
-basin<-readShapePoly("D:/R/KetaIP16/Shapefile/ip_basin.shp",
-                   proj4string=CRS("+proj=longlat"), verbose = T
-)
-summary(basin)
+library(maptools)
+## In ArcMap set dataframe projection to WGS 1984 before exporting shapefile
+## so that all shapefiles are in same projection.
+crk<-readShapeLines("D:/R/KetaIP16/Shapefile/str.shp", 
+                    proj4string=CRS("+proj=longlat"), verbose = T)
+summary(crk) # Shows shapfile attributes and lat/lon extent
 
-plot(basin[basin$Shape_Area=="secondary",],add=T,lwd=2,col="grey",axes=F)#check projection
+basin<-readShapePoly("D:/R/KetaIP16/Shapefile/ip_basin.shp", 
+                     proj4string=CRS("+proj=longlat"), verbose = T)
+summary(basin)
 
 ## ------ Plots -------
 ## Flow(Q)
-par(mfrow=c(1,1))
-plot(crk,lwd=1,col="lightblue",axes=T)
-symbols(q_dt$POINT_Y~q_dt$POINT_X,circles=q_dt$ave_q, inches=0.2, add=T, lwd=2)
-#par(new=T)
-#plot(q_dt$POINT_Y~q_dt$POINT_X, type='n',ylab="Lat",xlab="Lon",axes=F)
-title(main="2016 Flow (cms)")
+par(bg="grey87",fg="grey")
+plot(basin,lwd=2,bg="white",fg="grey67",axes=T)
+plot(crk,lwd=1,col="lightblue",add=T,axes=F)
+symbols(q_dt$POINT_Y~q_dt$POINT_X,circles=q_dt$ave_q, fg = "green",inches=0.2, add=T, lwd=2)
+title(main="2016 Flow (cms)",xlab='Longitude', ylab = "Latitude")
 grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
      lwd = par("lwd"), equilogs = TRUE)
 
 
 ## Plot density by lat long location
 
-par(mfrow=c(2,2))
-plot(crk,lwd=1,col="lightblue",axes=TRUE)
-symbols(q_dt$POINT_Y~q_dt$POINT_X,circles=redd$pr15, inches=0.2, add=T, lwd=2)
-par(new=T)
-plot(q_dt$POINT_Y~q_dt$POINT_X, type='n',ylab="Lat",xlab="Lon",axes=F)
-text(-135.51,58.09,paste("Downstream"))
-text(-135.3, 57.955, paste("Upstream"))
-text(-135.13, 57.95, paste("2015"))
-title(main="Pink Redd Density")
+par(mfrow=c(2,2),mai=c(.75,.75,.75,.75),bg="white", fg="grey80")
+plot(basin,lwd=2,bg="white",fg="grey67",axes=T)
+plot(crk,lwd=1, add=T, col="lightblue",axes=F)
+symbols(q_dt$POINT_Y~q_dt$POINT_X,circles=redd$pr15, fg = "grey17", inches=0.15, add=T, lwd=2)
+text(-135.6,58.1,paste("Downstream"), col = "grey17")
+text(-135.3, 57.92, paste("Upstream"), col="grey17")
+text(-135.1, 57.92, paste("2015"), font=2, col="grey17")
+#mtext("Pink Redd Density",side=3,line=-3,cex=1,outer=TRUE, col="grey17")
+title(main="Pink Redd Density", ylab="Latitude",xlab="Longitude")
 
-plot(crk,lwd=1,col="lightblue",axes=T)
-symbols(q_dt$POINT_Y~q_dt$POINT_X,circles=redd$pr16, inches=0.2, add=T, lwd=2)
-par(new=T)
-plot(q_dt$POINT_Y~q_dt$POINT_X, type='n',ylab="Lat",xlab="Lon", axes=F)
-text(-135.13, 57.95, paste("2016"))
+plot(basin,lwd=2,bg="white",fg="grey67",axes=T)
+plot(crk,lwd=1,add=T, col="lightblue",axes=F)
+symbols(q_dt$POINT_Y~q_dt$POINT_X,circles=redd$pr16, fg = "grey17", inches=0.15, add=T, lwd=2)
+text(-135.1, 57.92, paste("2016"), font=2, col="grey17")
+title(ylab="Latitude",xlab="Longitude")
 
-plot(crk,lwd=1,col="lightblue",axes=T)
-symbols(q_dt$POINT_Y~q_dt$POINT_X,circles=redd$cr15, inches=0.2, add=T, lwd=2)
-par(new=T)
-plot(q_dt$POINT_Y~q_dt$POINT_X, type='n',ylab="Lat",xlab="Lon",axes=F)
-text(-135.13, 57.95, paste("2015"))
-title(main="Chum Redd Density")
+plot(basin,lwd=2,bg="white",fg="grey67",axes=T)
+plot(crk,lwd=1,add=T,col="lightblue",axes=F)
+symbols(q_dt$POINT_Y~q_dt$POINT_X,circles=redd$cr15, fg = "grey17", inches=0.15, add=T, lwd=2)
+text(-135.1, 57.92, col="grey17", font=2, paste("2015"))
+#mtext("Chum Redd Density",side=1,line=-17,cex=1,outer=TRUE, col="grey17")
+title(main="Chum redd density", ylab="Latitude",xlab="Longitude")
 
-plot(crk,lwd=1,col="lightblue",axes=T)
-symbols(q_dt$POINT_Y~q_dt$POINT_X,circles=redd$cr16, inches=0.2, add=T, lwd=2)
-par(new=T)
-plot(q_dt$POINT_Y~q_dt$POINT_X,type='n',ylab="Lat",xlab="Lon",axes=F)
-text(-135.13, 57.95, paste("2016"))
-
+plot(basin,lwd=2,bg="white",fg="grey67",axes=T)
+plot(crk,lwd=1,add=T,col="lightblue",axes=T)
+symbols(q_dt$POINT_Y~q_dt$POINT_X,circles=redd$cr16, fg = "grey17", inches=0.15, add=T, lwd=2)
+text(-135.1, 57.92, paste("2016"), font=2, col="grey17")
+title(ylab="Latitude",xlab="Longitude")
 
 
 #************************

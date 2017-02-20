@@ -34,7 +34,7 @@
 ## ***** RandomForest looks for thresholds in the data that give low deviance.*****
 ## In other words, for either classificaiton or regression RF tree, the goal is to maximize homogeneiety
 ## of response variable for each predictor, with the most important predictor having greatest homogeneity
-## Classificaiton uses proporiton, regression uses RSS or MSE=RSS/n-1
+## Classificaiton uses proporiton, regression uses RSS, & MSE=RSS/n-1 for OOB error
 
 ## Random Forest; what to report:
 ## 1) Model used for analysis
@@ -54,7 +54,7 @@ r <-redd[,c(21:24)] # redd density
 hnl2 <- read.csv("D:/R/IP16/hnl2.csv")
 #h <-hnl2[,-c(1:2,4:6,8:9,14,23,25)] #Only variables for within reach, independant, not linear combination,
 ## and ecologicly important.  Plotted and compared Person correlations in PCA  script.
-h1 <- hnl2[,-1]# Compare both outputs in randomForest
+h1 <- hnl2[,-c(1,6)]# Compare both outputs in randomForest
 hcat <-read.csv("ip_habcat.csv")
 rm(hnl2)
 
@@ -151,11 +151,13 @@ plotcp(rt3)# visualize cross-validation results
 
 ## Pink 2015 Regression Random Forest predictor importance
 library(randomForest)
-(28/3)# number of 'mtry' regression predictors to use for each random forest
+(27/3)# number of 'mtry' regression predictors to use for each random forest
 set.seed(167)
 ## log transformation response variable to reduce heteroscedasticity (Breiman 2008,p586)
-(p15.rf <- randomForest(log(pr15+1) ~.,data = p15d, mtry=8, importance=T, corr.bias=T,proximity=T, 
-                        do.trace=500, ntree=10000))# view results
+#tuneRF(p15d[,-1],p15d$pr15,ntree=10000,stepFactor = 2,improve=0.05,trace = F,plot=T, doBest=T)
+(p15.rf <- randomForest(log(pr15+1) ~.,data = p15d, mtry=8, importance=T, corr.bias=F,proximity=F, 
+                        do.trace=1000, ntree=10000))# view results
+round(mean(p15.rf$rsq),3)#Pseudo R-sqr.
 ## The %IncMSE is the variance of the predictor, IncNode Purity is the RSS for the predictor
 ## Variable is important if > absolute value of lowest predictor importance value (%IncMSE for regression, MDA for classification)
 varImpPlot(p15.rf,sort=T,n.var=min(28,nrow(p15.rf$importance)),
@@ -163,10 +165,6 @@ varImpPlot(p15.rf,sort=T,n.var=min(28,nrow(p15.rf$importance)),
 abline(v=3,lty=2,col="grey")#Predictor cutoff-Elbow where index is no longer reduced by a factor of 2X previous diff
 ## Before model interpretaiton, make sure error stabalizes
 plot(p15.rf)# Cross validaiton error; Numbers of trees set to ensure that every input row gets predicted at least a few times.
-
-round(mean(p15.rf$rsq),3)#Pseudo R-sqr.
-
-#getTree(p15.rf,k=2000,labelVar=T)#Extracts single tree from fandomForest object
 
 ##RF plot of variable importance
 p <- as.data.frame(p15.rf$importance)
@@ -189,15 +187,10 @@ mtext("Logit probability presence?", side=2, outer=TRUE, line=-1)
 ## Valley width, VWI, and Val constraint all have positive relationships with redd density. 
 ## Such that an increase in valley constraint result in an increase in redd density
 
-#library(plotmo)
-#plotmo(p15.rf, pmethod="partdep") # plot partial dependencies
-
-#round(importance(p15.rf),2) # importance of each predictor; higher values more important
-
 
 ##-------- Pink 16 Random Forest classification predictor importance
 #*******************************
-(sqrt(28))# Number of 'mtry' predictors to use for each random forest in classificaiton
+(sqrt(27))# Number of 'mtry' predictors to use for each random forest in classificaiton
 set.seed(67)
 (p16.rf <- randomForest(pr16~.,data = p16, mtry=7, do.trace=500,
                         importance=T, ntree=5000))# view results
@@ -216,7 +209,6 @@ partialPlot(p16.rf,p16,MEANANNCMS)
 mtext("Logit probability presence", side=2, outer=TRUE, line=-1) 
 
 #round(importance(p16.rf),2) # importance of each predictor
-
 
 #-------- Chum 15 Random Forest classification predictor importance
 ##*****************************
