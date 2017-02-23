@@ -33,11 +33,11 @@ redd <- redd[,-1]
 library(maptools)
 ## In ArcMap set dataframe projection to WGS 1984 before exporting shapefile
 ## so that all shapefiles are in same projection.
-crk<-readShapeLines("D:/R/KetaIP16/Shapefile/str.shp", 
+crk<-readShapeLines("D:/R/KetaIP/Shapefile/str.shp", 
                     proj4string=CRS("+proj=longlat"), verbose = T)
 summary(crk) # Shows shapfile attributes and lat/lon extent
 
-basin<-readShapePoly("D:/R/KetaIP16/Shapefile/ip_basin.shp", 
+basin<-readShapePoly("D:/R/KetaIP/Shapefile/ip_study_basin.shp", 
                      proj4string=CRS("+proj=longlat"), verbose = T)
 summary(basin)
 
@@ -53,7 +53,6 @@ grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
 
 
 ## Plot density by lat long location
-
 par(mfrow=c(2,2),mai=c(.75,.75,.75,.75),bg="white", fg="grey80")
 plot(basin,lwd=2,bg="white",fg="grey67",axes=T)
 plot(crk,lwd=1, add=T, col="lightblue",axes=F)
@@ -84,23 +83,6 @@ text(-135.1, 57.92, paste("2016"), font=2, col="grey17")
 title(ylab="Latitude",xlab="Longitude")
 
 
-#************************
 
-## Examples
-
-nc_SP <- readShapePoly(system.file("shapes/sids.shp", package="maptools")[1],
-                       proj4string=CRS("+proj=longlat +ellps=clrk66"))
-## Not run:
-pls <- slot(nc_SP, "polygons")
-pls_new <- lapply(pls, checkPolygonsHoles)
-nc_SP <- SpatialPolygonsDataFrame(SpatialPolygons(pls_new,
-                                                  proj4string=CRS(proj4string(nc_SP))), data=as(nc_SP, "data.frame"))
-## End(Not run)
-try1 <- dotsInPolys(nc_SP, as.integer(nc_SP$SID74))
-plot(nc_SP, axes=TRUE)
-plot(try1, add=TRUE, pch=18, col="red")
-try2 <- dotsInPolys(nc_SP, as.integer(nc_SP$SID74), f="regular")
-plot(nc_SP, axes=TRUE)
-plot(try2, add=TRUE, pch=18, col="red")
 
 

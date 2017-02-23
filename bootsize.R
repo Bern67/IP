@@ -1,6 +1,6 @@
 ## Resourse Selection Ratio - bootstrapped channel size & gradient (small high grad/large low grad)
 
-
+## **** do medium along with small and large
 ###------ Data ---------
 habcat <- read.csv("ip_habcat.csv")
 

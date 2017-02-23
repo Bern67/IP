@@ -252,7 +252,7 @@ r$ppa15 <- as.factor(r$ppa15) #Need to change character to factor for pch to wor
 plot(pca$scores[,1], pca$scores[,2], pch=c(16,17)[r$ppa15], col=c("darkgrey","darkgreen")[r$ppa15], 
               lwd=2, cex=1.2, xlab="PCA 1 (39.9%)", ylab="PCA 2 (19.3%)")
 legend("topright",c("A","P"), pch=c(16,17), cex=1, col=c("grey","darkgreen"),inset=.01) 
-title(main="2015 Pink absent/present")
+title(main="2015 Pink Absent/Present")
 abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
 abline(h=(seq(0,100,25)), col="lightgray", lty="dotted")
 ## Pink 2016 P/A
@@ -260,7 +260,7 @@ r$ppa16 <- as.factor(r$ppa16) #Need to change character to factor for pch to wor
 plot(pca$scores[,1], pca$scores[,2], pch=as.numeric(r$ppa16),col=c("grey","darkgreen")[r$ppa16], 
      lwd=2,cex=1,xlab="PCA 1", ylab="PCA 2", sub = '      High grad., small hab <--------> Low grad., large hab.')
 legend("topright",c("A","P"),pch=c(1,2),col=c("grey","darkgreen"),inset=.01) 
-title(main="2016 Pink A/P")
+title(main="2016 Pink")
 mtext('Unconstrained  <----->  Constrained', side=4, line=.75,cex=.75)
 abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
 abline(h=(seq(0,100,25)), col="lightgray", lty="dotted")
@@ -277,7 +277,7 @@ r$cpa16 <- as.factor(r$cpa16) #Need to change character to factor for pch to wor
 plot(pca$scores[,1], pca$scores[,2], pch=as.numeric(r$cpa16),col=c("grey","darkgreen")[r$cpa16], 
      lwd=2,cex=1,xlab="PCA 1", ylab="PCA 2")
 legend("topright",c("A","P"),pch=c(1,2),col=c("grey","darkgreen"),inset=.01) 
-title(main="2016 Chum A/P")
+title(main="2016 Chum")
 abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
 abline(h=(seq(0,100,25)), col="lightgray", lty="dotted")
 

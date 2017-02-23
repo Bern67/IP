@@ -2,7 +2,6 @@
 ## Including VWI, BFW
 
 ##------ VWI Analysis ------
-
 ## Look at the correlation between field and hnl2 VC
 hb <- read.csv("D:/R/IP16/field_demV1.CSV")
 hab <- hb[,c(1,5,8:12,15,17,24)]#BFW, VW, and VWI
@@ -17,6 +16,7 @@ boxplot(hab)
 #****************************
 f2bfw <- na.omit(hab[,c(8,10)])
 bfw <- na.omit(hab[,c("hnl2_Xs_bfw",'f_bfw')])
+
 plot(hnl2_bfw~f2_bfw, f2bfw, pch=17,col='grey17', xlim=range(bfw$f_bfw), 
      ylim=c(0,42), xlab='',ylab = '')
 par(new=T)# Pay attention to the bfw measure method (what scale?)

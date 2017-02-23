@@ -102,9 +102,9 @@ x <- c(1,2.18,7.5,12)# Based on resource selection ratio analysis
 y <- c(.1,.1,1,1)
 plot(x,y, type='l', xlim=c(1,12), ylim=c(0,1), lwd=2, col='darkgreen',xlab='Calibrated valley-width index',ylab='IP Index')
 
-## Need to run a rolling average on a histogram for thresholds.  The focus of the HSC should be
+## Use binary recursive partisioning, or moving average for thresholds.  The focus of the HSC should be
 ## on the main bulk of the data, not one outlier.
-## Or, use 75th percentile for lower values
+## Or, use 75th percentile to remove extreme outliers to seperate from lower values
 
 ## HSI values 1.0 (excellent), 0.75 (good), 0.50 (average), &  0.25 (below average) are from
 ## (USFWS 1981)
