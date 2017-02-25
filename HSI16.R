@@ -4,8 +4,7 @@
 ## Chum IP persistent variable - Random Forest & PCA
 
 #**************
-## Data Setup
-##----------------
+##------ Data Setup ----------
 redd <- read.csv("redd.csv")
 r <-redd[,c(2,21:24)] #redd density
 ## Density plot of pink 15 redds
@@ -54,7 +53,7 @@ rm(cm,h_c)
 #r$c_ip <- ((r$cr16) - min(r$cr16))/diff(range(r$cr16))
 
 ## HSI Curves
-#-----------------------
+#--------- HSI Curves --------------
 
 ## Chum HSI for both 2015 & 2016
 par(mfrow=c(2,3))
@@ -120,8 +119,7 @@ z <- 1.96
 E <- 1.5# target sd from the mean
 (n <- (z^2)*(sd^2/E^2))
 
-#-------------------
-## Flow Velocity (m/s)
+#------ Flow Velocity (m/s)  -------------
 hab <- read.csv("D:/R/IP16/hnl2.csv")
 redd <- read.csv("redd.csv")
 

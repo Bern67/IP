@@ -52,6 +52,8 @@ grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
      lwd = par("lwd"), equilogs = TRUE)
 
 
+
+
 ## Plot density by lat long location
 par(mfrow=c(2,2),mai=c(.75,.75,.75,.75),bg="white", fg="grey80")
 plot(basin,lwd=2,bg="white",fg="grey67",axes=T)
@@ -83,6 +85,16 @@ text(-135.1, 57.92, paste("2016"), font=2, col="grey17")
 title(ylab="Latitude",xlab="Longitude")
 
 
+
+## Proportion of redd for each species per reach
+redd$pp15 <- 1-(redd$prn15/(redd$prn15+redd$crn15))
+redd$pc15 <- 1-(redd$crn15/(redd$prn15+redd$crn15))
+redd$pp16 <- 1-(redd$prn16/(redd$prn16+redd$crn16))
+redd$pc16 <- 1-(redd$crn16/(redd$prn16+redd$crn16))
+
+
+library(plotrix)
+floating.pie(q_dt$POINT_X[13:49],q_dt$POINT_Y[13:49],x=c(redd$pp15[13:49],4),radius=4,col=c("green","red"))
 
 
 
