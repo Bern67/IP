@@ -185,6 +185,4 @@ with(bt1,legend("topright",c("Tributary","Mainstem"),pch=c(16:17),bg=par(trib), 
 ## The data suggest that due to global warming there will be less snow spring melt in coastal Alaska.  This 
 ## This may reduce tribitary flows impacting pinks more than chum.
 
-#*****************
-## ANOVA
-aov()
+

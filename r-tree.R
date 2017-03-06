@@ -5,8 +5,7 @@
 ## The objective is to select the most appropriate predictors for IP geometric mean model (nonlinear), not a
 ## lm, logit, or DFA model. 
 
-#-----------
-## RPART
+#-----RPART description------
 ## Reference page 770 of The R Book for tree model details
 ## PDF - An introductio to recursive partitioning using the RPART routines
 
@@ -30,7 +29,7 @@
 ## Hierarchical relationship among predictors
 ## Uses both continuous numerical (regression), and catagorical (classification) predictors
 ## Branch with largest average class goes to right
-#-------------
+#------RandomForest Description -------
 ## ***** RandomForest looks for thresholds in the data that give low deviance.*****
 ## In other words, for either classificaiton or regression RF tree, the goal is to maximize homogeneiety
 ## of response variable for each predictor, with the most important predictor having greatest homogeneity
@@ -47,7 +46,7 @@
 
 
 ##Data
-#----------------------
+#----------Explanatory variable------------
 ## Explanatory variable is redd desity, redd presence/absence
 redd <- read.csv("redd.csv")
 r <-redd[,c(21:24)] # redd density
@@ -87,7 +86,7 @@ cr16 <- r[,"cr16"]
 c16 <- cbind(cr16,h1)
 rm(cr15,cr16,pr16)
 
-#---------------------
+#----------RPART Analysis-----------
 #****************************************************
 ## Recursive partitioning and regression tree (RPART)
 #****************************************************
@@ -221,12 +220,14 @@ abline(v=2.7,lty=2,col="grey")
 plot(c15.rf)#Cross validation error
 
 ## Partial dependence plots
-par(mfrow=c(2,2),oma=c(1,1,1,0))
-partialPlot(c15.rf,c15,Shear)
-abline(v=50,lty=2,col="grey")
-partialPlot(p16.rf,p16,GRADIENT)
-partialPlot(p16.rf,p16,MEANANNCMS)
-partialPlot(p16.rf,p16,VWI_Floor)# Use to verify constrained channel difference (randomForest.pdf,p.12)
+par(mfrow=c(2,1),oma=c(1,1,1,0))
+#partialPlot(c15.rf,c15,Shear)
+#abline(v=50,lty=2,col="grey")
+partialPlot(c15.rf,c15,GRADIENT)
+abline(v=0.011,lty=2,col="grey")
+partialPlot(c15.rf,c15,MEANANNCMS)
+abline(v=3,lty=2,col="grey")
+partialPlot(c15.rf,c15,VWI_Floor)# Use to verify constrained channel difference (randomForest.pdf,p.12)
 mtext("Logit probability presence", side=2, outer=TRUE, line=-1) 
 
 #round(importance(c15.rf),2) # importance of each predictor
@@ -264,13 +265,14 @@ plot(p3$MeanDecreaseGini,type = "h",
 text(x=c(1:28),p3$MeanDecreaseGini,p3$n,cex=.5)
 
 ## Partial dependence plots
-par(mfrow=c(2,2),oma=c(1,1,1,0))
-partialPlot(c16.rf,c16,SRC_DIST)
-abline(v=c(6,12),lty=2,col="grey")#
-partialPlot(c16.rf,c16,MEANANNCMS)
-abline(v=c(1.5,5.6),lty=2,col="grey")
+par(mfrow=c(2,1),oma=c(1,1,1,0))
+#partialPlot(c16.rf,c16,SRC_DIST)
+#abline(v=c(6,12),lty=2,col="grey")#
 partialPlot(c16.rf,c16,GRADIENT)
 abline(v=c(.006,.014),lty=2,col="grey")
+partialPlot(c16.rf,c16,MEANANNCMS)
+abline(v=c(1.5,5.6),lty=2,col="grey")
+
 partialPlot(c16.rf,c16,VWI_Floor)# Use to verify constrained channel difference (randomForest.pdf,p.12)
 abline(v=c(3.1,9),lty=2,col="grey")
 mtext("Logit probability of presence", side=2, outer=TRUE, line=-1) 

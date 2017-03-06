@@ -4,9 +4,10 @@
 q_dta <- read.csv('Q16.csv')
 gps <- read.csv("ip_gps.csv")
 
-attach(q_dta)
-q_dta$q <- ((ave(Depth_1+Depth_2+Depth_3))*wcw*Distance_m)/Time_s #Calculate CMS and add to flow data
-detach(q_dta)
+
+with(q_dta,
+     {q_dta$q <- ((ave(Depth_1+Depth_2+Depth_3))*wcw*Distance_m)/Time_s#Calculate CMS and add to flow data
+})
 
 library(dplyr)
 q_reach <- q_dta%>%
@@ -52,9 +53,7 @@ grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
      lwd = par("lwd"), equilogs = TRUE)
 
 
-
-
-## Plot density by lat long location
+## Plot REDD density by lat long location
 par(mfrow=c(2,2),mai=c(.75,.75,.75,.75),bg="white", fg="grey80")
 plot(basin,lwd=2,bg="white",fg="grey67",axes=T)
 plot(crk,lwd=1, add=T, col="lightblue",axes=F)

@@ -572,11 +572,13 @@ h <- hnl2[,c(7,11,15)]
 rm(hnl2)
 hs <- cbind(h,s)
 ## Habitat small high gradient/large low gradient threshold: based on PCA PC1 
+## Use min flow and max gradient from large, or max flow and min gradient for small as threshold
 aggregate(cbind(GRADIENT,MEANANNCMS)~size,mean, data=hs)
+aggregate(cbind(GRADIENT,MEANANNCMS)~size,median, data=hs)
 aggregate(cbind(GRADIENT,MEANANNCMS)~size,max, data=hs)# 1% gradient, 1.9 cms
 aggregate(cbind(GRADIENT,MEANANNCMS)~size,min, data=hs)
-mean(with(hs,GRADIENT))
-mean(with(hs,MEANANNCMS))
+median(with(hs,GRADIENT))
+median(with(hs,MEANANNCMS))
 
 #Redd counts
 redd <-read.csv("redd.csv")
@@ -593,126 +595,151 @@ library(boot)
 set.seed(167)
 s_p15 <- function(data,i){
   d = data[i, ]
-  o_s = (d$prn15[d$size=="s"]/sum(d$prn15))# for each CC study reach
+  o_s = (d$prn15[d$size=="s"]/sum(d$prn15))# 
   p_s = (d$ha15[d$size=="s"]/sum(d$ha15))
-  o_l = (d$prn15[d$size=="l"]/sum(d$prn15))# for each UV study reach
+  o_m = (d$prn15[d$size=="m"]/sum(d$prn15))# 
+  p_m = (d$ha15[d$size=="m"]/sum(d$ha15))  
+  o_l = (d$prn15[d$size=="l"]/sum(d$prn15))# 
   p_l = (d$ha15[d$size=="l"]/sum(d$ha15))
   wi_s = mean(o_s/p_s)
+  wi_m = mean(o_m/p_m)
   wi_l = mean(o_l/p_l)
   wi_df = mean((o_s/p_s)-(o_l/p_l)) #difference between wi's
-  wi = c(wi_s,wi_l,wi_df)
+  wi = c(wi_s,wi_m,wi_l,wi_df)
   return(wi)
 }
 p15 <- boot(data = rc, statistic =s_p15, strata=rc$size,R = 3000)
 p15
-plot(p15,index=1)
-plot(p15,index=2)
+plot(p15,index=1)# small 
+plot(p15,index=2)# medium
+plot(p15,index=3)# Large
+#plot(p15,index=4)# difference between small-large
 # Bonferroni adj. Alpha=0.1/(2I), I=#Groups,& BCa is corrected CI preffered by statisticians (Manley pg.58)
-ci1<-boot.ci(p15, index=1,type='bca',conf = 0.975) 
-ci2<-boot.ci(p15, index=2,type='bca',conf = 0.975)
-ci1$bca[1,c(4:5)]# BCa 97.5%CI, for CC
-ci2$bca[1,c(4:5)]# for UV
+ci1<-boot.ci(p15, index=1,type='bca',conf = 0.983) 
+ci2<-boot.ci(p15, index=2,type='bca',conf = 0.983)
+ci3 <- boot.ci(p15, index=3,type='bca',conf = 0.983)
+ci1$bca[1,c(4:5)]# BCa 97.5%CI, small
+ci2$bca[1,c(4:5)]# medium
+ci3$bca[1,c(4:5)]# large
 (m1 <- mean(p15$t[,1]))#Bootstrap mean corrected for bias, report this mean
-(m2 <- mean(p15$t[,2]))#for UV
+(m2 <- mean(p15$t[,2]))#for med
+(m2 <- mean(p15$t[,3]))#for large
 
-t.test(p15$t[,1],p15$t[,2])
 
 ##Chum 2015 
 set.seed(167)
 s_c15 <- function(data,i){
   d = data[i, ]
-  o_s = (d$crn15[d$size=="s"]/sum(d$crn15))# for each CC study reach
+  o_s = (d$crn15[d$size=="s"]/sum(d$crn15))# 
   p_s = (d$ha15[d$size=="s"]/sum(d$ha15))
-  o_l = (d$crn15[d$size=="l"]/sum(d$crn15))# for each UV study reach
+  o_m = (d$crn15[d$size=="m"]/sum(d$crn15))# 
+  p_m = (d$ha15[d$size=="m"]/sum(d$ha15))
+  o_l = (d$crn15[d$size=="l"]/sum(d$crn15))# 
   p_l = (d$ha15[d$size=="l"]/sum(d$ha15))
   wi_s = mean(o_s/p_s)
+  wi_m = mean(o_m/p_m)  
   wi_l = mean(o_l/p_l)
   wi_df = mean((o_l/p_l)-(o_s/p_s)) #difference between wi's
-  wi = c(wi_s,wi_l,wi_df)
+  wi = c(wi_s,wi_m,wi_l,wi_df)
   return(wi)
 }
 c15 <- boot(data = rc, statistic =s_c15, strata=rc$size,R = 3000)
 c15
-plot(c15,index=1)
-plot(c15,index=2)
+plot(c15,index=1)# Small
+plot(c15,index=2)# med
+plot(c15,index=3)# large
 # Bonferroni adj. Alpha=0.1/(2I), I=#Groups,& BCa is corrected CI preffered by statisticians (Manley pg.58)
-ci3<-boot.ci(c15, index=1,type="bca",conf = 0.975) 
-ci4<-boot.ci(c15, index=2,type="bca",conf = 0.975)
-ci3$bca[1,c(4:5)]# BCa 97.5%CI, for CC
-ci4$bca[1,c(4:5)]# for UV
-(m3 <- mean(c15$t[,1]))#Bootstrap mean corrected for bias, report this mean
-(m4 <- mean(c15$t[,2]))#for UV
+ci4<-boot.ci(c15, index=1,type="bca",conf = 0.983) 
+ci5<-boot.ci(c15, index=2,type="bca",conf = 0.983)
+ci6<-boot.ci(c15, index=3,type="bca",conf = 0.983)
+ci4$bca[1,c(4:5)]# BCa 97.5%CI, for small
+ci5$bca[1,c(4:5)]# for med
+ci5$bca[1,c(4:5)]# large
+(m4 <- mean(c15$t[,1]))#Bootstrap mean corrected for bias, report this mean
+(m5 <- mean(c15$t[,2]))#for med
+(m6 <- mean(c15$t[,3]))#for large
 
-t.test(c15$t[,1],c15$t[,2])
 
 ##Pink 2016 t/m
 set.seed(167)
 s_p16 <- function(data,i){
   d = data[i, ]
-  o_s = (d$prn16[d$size=="s"]/sum(d$prn16))# for each CC study reach
+  o_s = (d$prn16[d$size=="s"]/sum(d$prn16))# 
   p_s = (d$ha16[d$size=="s"]/sum(d$ha16))
-  o_l = (d$prn16[d$size=="l"]/sum(d$prn16))# for each UV study reach
+  o_m = (d$prn16[d$size=="m"]/sum(d$prn16))# 
+  p_m = (d$ha16[d$size=="m"]/sum(d$ha16))  
+  o_l = (d$prn16[d$size=="l"]/sum(d$prn16))# 
   p_l = (d$ha16[d$size=="l"]/sum(d$ha16))
   
   wi_s = mean(o_s/p_s)
+  wi_m = mean(o_m/p_m)
   wi_l = mean(o_l/p_l)
   wi_df = mean((o_l/p_l)-(o_s/p_s)) #difference between wi's
-  wi = c(wi_s,wi_l,wi_df)
+  wi = c(wi_s,wi_m,wi_l,wi_df)
   return(wi)
 }
 p16 <- boot(data = rc, statistic =s_p16, strata=rc$size,R = 3000)
 p16
 plot(p16,index=1)
 plot(p16,index=2)
+plot(p16,index=3)
 # Bonferroni adj. Alpha=0.1/(2I), I=#Groups,& BCa is corrected CI preffered by statisticians (Manley pg.58)
-ci5<-boot.ci(p16, index=1,type="bca",conf = 0.975) 
-ci6<-boot.ci(p16, index=2,type="bca",conf = 0.975)
-ci5$bca[1,c(4:5)]# BCa 97.5%CI, for CC
-ci6$bca[1,c(4:5)]# for UV
-(m5 <- mean(p16$t[,1]))#Bootstrap mean corrected for bias, report this mean
-(m6 <- mean(p16$t[,2]))#for UV
+ci7<-boot.ci(p16, index=1,type="bca",conf = 0.983) 
+ci8<-boot.ci(p16, index=2,type="bca",conf = 0.983)
+ci9<-boot.ci(p16, index=3,type="bca",conf = 0.983)
+ci7$bca[1,c(4:5)]# BCa 97.5%CI
+ci8$bca[1,c(4:5)]# 
+ci9$bca[1,c(4:5)]# 
+(m7 <- mean(p16$t[,1]))#Bootstrap mean corrected for bias, report this mean
+(m8 <- mean(p16$t[,2]))# for med
+(m9 <- mean(p16$t[,2]))# large
 
-t.test(p16$t[,1],p16$t[,2])
 
 ##Chum 2016 t/m
 set.seed(167)
 s_c16 <- function(data,i){
   d = data[i, ]
-  o_s = (d$crn16[d$size=="s"]/sum(d$crn16))# for each CC study reach
+  o_s = (d$crn16[d$size=="s"]/sum(d$crn16))#
   p_s = (d$ha16[d$size=="s"]/sum(d$ha16))
+  o_m = (d$crn16[d$size=="m"]/sum(d$crn16))#
+  p_m = (d$ha16[d$size=="m"]/sum(d$ha16))
   o_l = (d$crn16[d$size=="l"]/sum(d$crn16))# for each UV study reach
   p_l = (d$ha16[d$size=="l"]/sum(d$ha16))
   wi_s = mean(o_s/p_s)
+  wi_m = mean(o_m/p_m)  
   wi_l = mean(o_l/p_l)
   wi_df = mean((o_l/p_l)-(o_s/p_s)) #difference between wi's
-  wi = c(wi_s,wi_l,wi_df)
+  wi = c(wi_s,wi_m,wi_l,wi_df)
   return(wi)
 }
 (c16 <- boot(data = rc, statistic =s_c16, strata=rc$size,R = 3000))
 plot(c16,index=1)
 plot(c16,index=2)
 # Bonferroni adj. Alpha=0.1/(2I), I=#Groups,& BCa is corrected CI preffered by statisticians (Manley pg.58)
-(ci7<-boot.ci(c16, index=1,type="bca",conf = 0.975))
-ci7$bca[1,c(4:5)]# BCa 97.5%CI, for CC
-(ci8<-boot.ci(c16, index=2,type="bca",conf = 0.975))
-ci8$bca[1,c(4:5)]# for UV
-(m7 <- mean(c16$t[,1]))#Bootstrap mean corrected for bias, report this mean
-(m8 <- mean(c16$t[,2]))#for UV
+(ci10<-boot.ci(c16, index=1,type="bca",conf = 0.983))
+ci10$bca[1,c(4:5)]# BCa 97.5%CI
+(ci11<-boot.ci(c16, index=2,type="bca",conf = 0.983))
+ci11$bca[1,c(4:5)]# med
+(ci12<-boot.ci(c16, index=3,type="bca",conf = 0.983))
+ci12$bca[1,c(4:5)]# large
 
-t.test(c16$t[,1],c16$t[,2])
+(m10 <- mean(c16$t[,1]))#Bootstrap mean corrected for bias, report this mean
+(m11 <- mean(c16$t[,2]))#for med
+(m12 <- mean(c16$t[,3]))#for med
 
 ##---- Create DF for plot of mean proportion with CI ----
 
-bt4 <- data.frame(sp=c("p","p","c","c","p","p","c","c"), yr=c(15,15,15,15,16,16,16,16),
-                  size=c("s","l","s","l","s","l","s","l"),
-                  s_y=c("p15","p15","c15","c15","p16","p16","c16","c16"),
-                  id=c("p15s","p15l","c15s","c15l","p16s","p16l","c16s","c16l"),
-                  w_ave=c(m1,m2,m3,m4,m5,m6,m7,m8),lci=c(ci1$bca[1,c(4)],ci2$bca[1,c(4)],
-                 ci3$bca[1,c(4)],ci4$bca[1,c(4)],ci5$bca[1,c(4)],ci6$bca[1,c(4)],ci7$bca[1,
-                 c(4)],ci8$bca[1,c(4)]), uci=c(ci1$bca[1,c(5)],ci2$bca[1,c(5)],ci3$bca[1,c(5)],
-                 ci4$bca[1,c(5)],ci5$bca[1,c(5)],ci6$bca[1,c(5)],ci7$bca[1,c(5)],ci8$bca[1,c(5)]))
+bt4 <- data.frame(sp=c("p","p","p","c","c","c","p","p","p","c","c","c"), yr=c(15,15,15,15,15,15,16,16,16,16,16,16),
+       size=c("s","m","l","s","m","l","s","m","l","s","m","l"),
+       s_y=c("p15","p15","p15","c15","c15","c15","p16","p16","p16","c16","c16","c16"),
+       id=c("p15s","p16m","p15l","c15s","c15m","c15l","p16s","p16m","p16l","c16s","c16m","c16l"),
+       w_ave=c(m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12),lci=c(ci1$bca[1,c(4)],ci2$bca[1,c(4)],ci3$bca[1,c(4)],
+    ci4$bca[1,c(4)],ci5$bca[1,c(4)],ci6$bca[1,c(4)],ci7$bca[1,c(4)],ci8$bca[1,c(4)],ci9$bca[1,c(4)],
+    ci10$bca[1,c(4)], ci11$bca[1,c(4)], ci12$bca[1,c(4)]),
+    uci=c(ci1$bca[1,c(5)],ci2$bca[1,c(5)],ci3$bca[1,c(5)],ci4$bca[1,c(5)],ci5$bca[1,c(5)], ci6$bca[1,c(5)],ci7$bca[1,c(5)],
+    ci8$bca[1,c(5)],ci9$bca[1,c(5)],ci10$bca[1,c(5)],ci11$bca[1,c(5)],ci12$bca[1,c(5)]))
 
-bt4 <- with(bt4,bt4[order(sp),])
+(bt4 <- with(bt4,bt4[order(sp),]))
 
 ##Calcuate standard deviation from CI
 bt4$lsd <- abs(bt4$w_ave-bt4$lci)
@@ -722,31 +749,33 @@ bt4$yr <-as.factor(bt4$yr)
 bt4$w_stnd <- ((bt4$w_ave) - min(bt4$w_ave))/diff(range(bt4$w_ave))
 
 #------- size Plot of selection ratio w Bonferroni CI-------
-
+## Habitat size based on original basin area GRTS selected based on even 1/3 frequency of all reaches
 
 rsr_hs <- with(bt4,
-        {x <- c(1:8)
-          plot(x, w_ave,xaxt = "n",
-          ylim=range(c(w_ave-lsd, w_ave+usd)),
-          pch=c(16:17),bg=par(size), cex=1.2,xlab="Species/Year", ylab=expression("Selection ratio "(w[i])), 
-          main='Large vs small habitat')
+        {x <- c(1:12)
+          plot(x, w_ave,xaxt = "n",ylim=range(c(w_ave-lsd, w_ave+usd)), pch=c(16:17,15),bg=par(size), 
+               cex=1.2,xlab="Species/Year", ylab=expression("Selection ratio "(w[i])), 
+               main='Small, medium, & large habitat')
           #Draw arrows with length of sd, & horizontal bar with tip length of .1
           with(bt4,arrows(x, w_ave-lsd, x, w_ave+usd, length=0.1, angle=90, code=3))
           abline(1,0,lty=2,lwd=1,col="black")
-          abline(v = c(4.5), col = "grey", lty = 1)
+          abline(v = c(6.5), col = "grey", lty = 1)
           xl <- c("C15","C16","P15","P16")
-          axis(1, at=c(1.5,3.5,5.5,7.5), labels=xl)
-          with(bt4,legend("topright",c("Small","Large"),pch=c(16:17),bg=par(size), cex=1,inset=.01))
+          axis(1, at=c(2,5,8,11), lwd=2,col.axis="Blue",labels=xl)
+         # axis(1, at=c(3.5,6.5,9.5), lwd=2,tcl=.5,col.axis="red",xlab = "")
+          with(bt4,legend("topright",c("Small","Medium","Large"),pch=c(16:17,15),bg=par(size), cex=1,inset=.01))
 })
 
 
-## Chum salmon significantly selected for large low gradient habitat in 2015, and significantly avoided 
-## small high gradient habitat in 2016.  Pink salmon selected both habitat types in proportion to availability
-## during both years.  Although, the data sugests that pinks also avoided small high gradient habitat
-## more during 2016 low water year than during 2015 high water year.
+## During high average flows in 2015 both chum and pink select all size habitat in proportion to availability, with pink selecting
+## small habitat at a slightly higher propotion than chum.
+## During low average spawning flows in 2016 chum and pink significantly avoided small habitat and selected
+## medium and large in proportion to availability.
+## The large variance in small habitat for 2015 is due to 
 
 ##--- 5) Multi-Plots --------
 
 par(mfrow=c(2,2))
+matrix(2,2,2,2)
 plot(rsr_c,rsr_g,rsr_t,rsr_hs)
 
