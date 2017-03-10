@@ -23,10 +23,13 @@ boxplot(sqrt(hnl2[,-1]), main="sqrt transformed")
 boxplot(scale(hnl2[,-1],center=T), main="Standardized & Centered")
 boxplot(scale(sqrt(hnl2[,-1])),center=F, main="sqrt & scaled to Z-score")
 
-round(cov(hnl2[,-1]),2)# Covariance matrix: variance & covariance (covariance is diagonal)
+h_c15 <- hnl2
+h_c15$c15 <- r$crd15
+
+round(cov(h_c15[,-1]),2)# Covariance matrix: variance & covariance (covariance is diagonal)
 ##Correlation matrix - all diagonal elements are equal to 1
-round(var(scale(hnl2[,-1])),2)#standardized variance matrix = correlation matrix
-round(cor(hnl2[,-1]),2)#correlation matrix; default method="pearson"
+round(var(scale(h_c15[,-1])),2)#standardized variance matrix = correlation matrix
+round(cor(h_c15[,-1]),2)#correlation matrix; default method="pearson"
 
 ## Assumptions for PCA:
 ## Multivariate normality:

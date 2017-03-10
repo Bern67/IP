@@ -44,9 +44,9 @@ library(Hmisc) ## Just needs to be signif correlated, reference Flitcroft 2014
 ## ALL DFA MODEL VARIABLES ####
 #### **********************
 head(redd) # all 49 study reaches
-x <- as.factor(r[,"da15"]) #independent variable (factor); 2015
-x1 <- as.factor(r[,"da16"])#independent variable (factor); 2016
-y <- as.matrix(h[,-1]) #multivariate response variable matrix; hnl2 synthetic habitat
+x <- as.factor(r[,"da15"]) # response variable (factor); 2015
+x1 <- as.factor(r[,"da16"])# response variable (factor); 2016
+y <- as.matrix(h[,-1]) # multivariate predictor variable matrix; hnl2 synthetic habitat
 
 
 #### ***************************

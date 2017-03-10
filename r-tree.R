@@ -144,8 +144,10 @@ printcp(rt3)
 plotcp(rt3)# visualize cross-validation results
 
 
-####**********************************####
-## RANDOM FOREST VARIABLE SELECTION
+
+
+#---------- RF -----------
+## RANDOM FOREST VARIABLE SELECTION 
 #**********************************
 
 ## Pink 2015 Regression Random Forest predictor importance
@@ -211,6 +213,7 @@ mtext("Logit probability presence", side=2, outer=TRUE, line=-1)
 
 #-------- Chum 15 Random Forest classification predictor importance
 ##*****************************
+library(randomForest)
 set.seed(67)
 (c15.rf <- randomForest(cr15~.,data = c15, mtry=11, do.trace=500, 
                         importance=T, ntree=5000))# view results
@@ -229,6 +232,8 @@ partialPlot(c15.rf,c15,MEANANNCMS)
 abline(v=3,lty=2,col="grey")
 partialPlot(c15.rf,c15,VWI_Floor)# Use to verify constrained channel difference (randomForest.pdf,p.12)
 mtext("Logit probability presence", side=2, outer=TRUE, line=-1) 
+partialPlot(c15.rf,c15,WIDTH_M)
+
 
 #round(importance(c15.rf),2) # importance of each predictor
 ##RF plot of variable importance

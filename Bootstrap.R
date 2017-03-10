@@ -563,9 +563,9 @@ rsr_t <- with(bt3,
 #*********************************
 ## Resourse Selection Ratio - bootstrapped channel size & gradient (small/large)
 ## **** Threshold based on PCA exploratory analysis
-#habcat <- read.csv("ip_habcat.csv")
 
-print(table(habcat$size))#habitat size groups
+habcat <- read.csv("ip_habcat.csv")
+print(table(habcat$size))#habitat size groups, based on 2015 GRTS
 s <-habcat[,c(1,7)]
 hnl2 <- read.csv("D:/R/IP16/hnl2.csv", header=T)
 h <- hnl2[,c(7,11,15)]
@@ -585,7 +585,7 @@ redd <-read.csv("redd.csv")
 redd <- redd[,-1]
 rc <- redd[,c(1,13:19)]#redd counts & habitat
 str(rc)
-rc <- merge(rc,s) #add contrained class
+rc <- merge(rc,s) #add size class
 head(rc)
 
 
@@ -623,7 +623,7 @@ ci2$bca[1,c(4:5)]# medium
 ci3$bca[1,c(4:5)]# large
 (m1 <- mean(p15$t[,1]))#Bootstrap mean corrected for bias, report this mean
 (m2 <- mean(p15$t[,2]))#for med
-(m2 <- mean(p15$t[,3]))#for large
+(m3 <- mean(p15$t[,3]))#for large
 
 
 ##Chum 2015 
