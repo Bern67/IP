@@ -218,7 +218,7 @@ abline(h=(seq(0,100,25)), col="lightgray", lty="dotted")
 title(main="Pink 2015 Redd Density")
 mtext('Unconstrained  <----->  Constrained', side=4, line=1)
 
-## Pink 2015 low and high density vs principal component
+## Cm & pk 2015-16 low and high density vs principal component
 with(r,
      {plh15 <- as.factor(plh15) #Need to change character to factor for pch to work as numeric
      plot(pca$scores[,1], pca$scores[,2], pch=c(17,16)[plh15],col=c("darkgreen","darkgrey")[r$plh15], 
