@@ -175,14 +175,14 @@ rsr_c <- with(bt,
       plot(x, w_ave,xaxt = "n", ylim=range(c(w_ave-lsd, w_ave+usd)),
      pch=c(16:17),bg=par(con), cex=1.2, col=c("black","black"),xlab="Species/Year", 
      ylab=expression("Selection ratio  "(w[i])),
-     main="Calibrated constrained vs unconstrained channels")# std.dev error bars
+     main="")# std.dev error bars
     #Draw arrows with length of sd, & horizontal bar with tip length of .1
     with(bt,arrows(x, w_ave-lsd, x, w_ave+usd, length=0.1, angle=90, code=3))
     abline(1,0,lty=2,lwd=1,col="black")
     abline( v = c(4.5), col = "grey", lty = 1)
     xl <- c("C15","C16","P15","P16")
     axis(1, at=c(1.5,3.5,5.5,7.5), labels=xl)
-    legend("topright",c("CC","UV"),pch=c(16:17),bg=par(con), cex=1,inset=.01) 
+    legend("topright",c("Constrained canyon","Unconstrained valley"),pch=c(16:17),bg=par(con), cex=1,inset=.01) 
 })
 
 ## Chum & pink salmon significantly avoided constrained channels in 2015 & 2016, while both selected 
@@ -732,7 +732,7 @@ bt4$w_stnd <- ((bt4$w_ave) - min(bt4$w_ave))/diff(range(bt4$w_ave))
 
 rsr_hs <- with(bt4,
         {x <- c(1:8)
-          plot(x, w_ave,xaxt = "n",ylim=range(c(w_ave-lsd, w_ave+usd)), pch=c(16:17),bg=par(size), 
+          plot(x, w_ave,xaxt = "n",ylim=range(c(w_ave-lsd, 4)), pch=c(16:17),bg=par(size), 
                cex=1.2,xlab="Species/Year", ylab=expression("Selection ratio "(w[i])), 
                main='Small & large habitat')
           #Draw arrows with length of sd, & horizontal bar with tip length of .1
@@ -753,44 +753,46 @@ rsr_hs <- with(bt4,
 
 ##--- 5) Multi-Plots --------
 
-par(mfrow=c(2,2))
-matrix(2,2,2,2)
+pdf(file = "D:/R/KetaIP/Fig/Wi_RSR.pdf",
+    width = 6.61,
+    height = 6.61,
+    pointsize = 10
+)
+
+op <- par(mfrow = c(2,2),
+          oma = c(5,4,1,1) + 0.1,
+          mar = c(1,1,1,1) + 0.1)
+
 rsr_c <- with(bt,
               {x <- c(1:8)
-              plot(x, w_ave,xaxt = "n", ylim=range(c(w_ave-lsd, w_ave+usd)),
-                   pch=c(16:17),bg=par(con), cex=1.2, col=c("black","black"),xlab="Species/Year", 
-                   ylab=expression("Selection ratio  "(w[i])),
-                   main="Calibrated constrained vs unconstrained channels")# std.dev error bars
+               plot(x, w_ave,xaxt = "n", ylim=range(c(0, 4)),
+                   pch=c(16:17),bg=par(con), cex=1.2, col=c("black","black"))
               #Draw arrows with length of sd, & horizontal bar with tip length of .1
-              with(bt,arrows(x, w_ave-lsd, x, w_ave+usd, length=0.1, angle=90, code=3))
-              abline(1,0,lty=2,lwd=1,col="black")
-              abline( v = c(4.5), col = "grey", lty = 1)
-              xl <- c("C15","C16","P15","P16")
-              axis(1, at=c(1.5,3.5,5.5,7.5), labels=xl)
-              legend("topright",c("CC","UV"),pch=c(16:17),bg=par(con), cex=1,inset=.01) 
-              })
-rsr_g <- with(bt2,
-              {x <- c(1:8)
-              plot(x, w_ave,xaxt = "n",
-                   ylim=range(c(w_ave-lsd, w_ave+usd)),
-                   pch=c(16:17),bg=par(geol), cex=1.2,xlab="Species/Year", ylab=expression("Selection ratio "(w[i])), 
-                   main='Glacial alluvium (Qs) vs volcanic diorite (Dv)')
-              #Draw arrows with length of sd, & horizontal bar with tip length of .1
-              with(bt2,arrows(x, w_ave-lsd, x, w_ave+usd, length=0.1, angle=90, code=3))
+              with(bt,arrows(x, w_ave-lsd, x, w_ave+usd, length=0.05, angle=90, code=3))
               abline(1,0,lty=2,lwd=1,col="black")
               abline(v = c(4.5), col = "grey", lty = 1)
               xl <- c("C15","C16","P15","P16")
-              axis(1, at=c(1.5,3.5,5.5,7.5), labels=xl)
+              axis(1, at=c(1.5,3.5,5.5,7.5), labels=F)
+              legend("topright",c("CC","UV"), pch=c(16:17), bg=par(con), cex=.9,inset=.01) 
+              })
+rsr_g <- with(bt2,
+              {x <- c(1:8)
+              plot(x, w_ave,xaxt = "n",ylim=range(c(0, 4)),
+                   pch=c(16:17),bg=par(geol), cex=1.2, labels=F)
+              #Draw arrows with length of sd, & horizontal bar with tip length of .1
+              with(bt2,arrows(x, w_ave-lsd, x, w_ave+usd, length=0.05, angle=90, code=3))
+              abline(1,0,lty=2,lwd=1,col="black")
+              abline(v = c(4.5), col = "grey", lty = 1)
+              #xl <- c("C15","C16","P15","P16")
+              axis(side=1, at=c(1.5,3.5,5.5,7.5), labels = F)
               with(bt2,legend("topright",c("Dv","Qs"),pch=c(16:17),bg=par(geol), cex=1,inset=.01))
               })
 rsr_t <- with(bt3,
               {x <- c(1:8)
               plot(x, w_ave,xaxt = "n",
-                   ylim=range(c(w_ave-lsd, w_ave+usd)),
-                   pch=c(16:17),bg=par(trib), cex=1.2,xlab="Species/Year", ylab=expression("Selection ratio  "(w[i])),
-                   main="Tributary vs Mainstem Channels")# with standard error bars
+                   ylim=range(c(0, 4)), pch=c(16:17),bg=par(trib), cex=1.2)# with standard error bars
               #Draw arrows with length of sd, & horizontal bar with tip length of .1
-              with(bt3,arrows(x, w_ave-lsd, x, w_ave+usd, length=0.1, angle=90, code=3))
+              with(bt3,arrows(x, w_ave-lsd, x, w_ave+usd, length=0.05, angle=90, code=3))
               abline(1,0,lty=2,lwd=1,col="black")
               abline(v = c(4.5), col = "grey", lty = 1)
               xl <- c("C15","C16","P15","P16")
@@ -799,14 +801,19 @@ rsr_t <- with(bt3,
               })
 rsr_hs <- with(bt4,
                {x <- c(1:8)
-               plot(x, w_ave,xaxt = "n",ylim=range(c(w_ave-lsd, w_ave+usd)), pch=c(16:17),bg=par(size), 
-                    cex=1.2,xlab="Species/Year", ylab=expression("Selection ratio "(w[i])), 
-                    main='Small & large habitat')
+               plot(x, w_ave,xaxt = "n",ylim=range(c(0, 4)), pch=c(16:17),bg=par(size), 
+                    cex=1.2, labels=F)
                #Draw arrows with length of sd, & horizontal bar with tip length of .1
-               with(bt4,arrows(x, w_ave-lsd, x, w_ave+usd, length=0.1, angle=90, code=3))
+               with(bt4,arrows(x, w_ave-lsd, x, w_ave+usd, length=0.05, angle=90, code=3))
                abline(1,0,lty=2,lwd=1,col="black")
                abline(v = c(4.5), col = "grey", lty = 1)
                xl <- c("C15","C16","P15","P16")
-               axis(1, at=c(1.5,3.5,5.5,7.5), lwd=2,col.axis="Blue",labels=xl)
+               axis(1, at=c(1.5,3.5,5.5,7.5), lwd=1,col.axis="black",labels=xl)
                with(bt4,legend("topright",c("Small","Large"),pch=c(16:17),bg=par(size), cex=1,inset=.01))
                })
+
+title(xlab="Species/Year",
+      ylab = expression("Selection ratio "(w[i])),
+      outer = T, line = 2, cex=3)
+par(op)
+dev.off()

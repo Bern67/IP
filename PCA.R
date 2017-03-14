@@ -29,7 +29,7 @@ h_c15$c15 <- r$crd15
 round(cov(h_c15[,-1]),2)# Covariance matrix: variance & covariance (covariance is diagonal)
 ##Correlation matrix - all diagonal elements are equal to 1
 round(var(scale(h_c15[,-1])),2)#standardized variance matrix = correlation matrix
-round(cor(h_c15[,-1]),2)#correlation matrix; default method="pearson"
+round(cor(h_c15[,-1]),2)#correlation matrix; default method="pearson" -> parametric
 
 ## Assumptions for PCA:
 ## Multivariate normality:
