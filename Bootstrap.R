@@ -456,7 +456,6 @@ t_p16 <- function(data,indices){
   p_t = (d$ha16[d$trib=="t"]/sum(d$ha16))
   o_m = (d$prn16[d$trib=="m"]/sum(d$prn16))# for each UV study reach
   p_m = (d$ha16[d$trib=="m"]/sum(d$ha16))
-  
   wi_t = mean(o_t/p_t)
   wi_m = mean(o_m/p_m)
   wi_df = mean((o_m/p_m)-(o_t/p_t)) #difference between wi's

@@ -9,6 +9,10 @@
 ## units of measure, need to standardize variables and use correlation matrix if the data is somewhat multinormal
 ## Default is correlation matrix, so only need to scale (standardize to Z-score)
 
+## PCA:
+## Eigenvector is the sum of the loadings on each axis
+
+
 ##-----Know your data ----
 hnl2 <- read.csv("D:/R/IP16/hnl2.csv", header=T)
 r <- read.csv("redd.csv")
@@ -117,13 +121,16 @@ cor.matrix(h[,c("GEP_DEL","GEP","BFQ","GEP_Cum")])#PC2+; BFQ or GEP
 ##*******************
 ## Transformations
 ##*******************
+
+### Since all reach habitat variables are continuous, we will use log transformation
+
 library(mvnormtest)
 mshapiro.test(t(h)) #data has to be a matrix and has to be transposed
 ## If p < .05, then sig dif than normal distribution
 
 #Continuous predictor (log = ln;natural log, log10 = log base 10)
 hb <- h[,c('WIDTH_M',"BFQ")]
-h_ln <- log(h[,-c(9,16)]+1)
+h_ln <- log(h[,-c(9,16)]+1)# all others log transformed
 
 th <-  cbind(h_ln,hb)#transformed habitat data
 rm(h_ln,hb)
@@ -131,8 +138,11 @@ library(MVN)
 roystonTest(th,qqplot=T)#Close enought to multivariate normal for exploratory PCA
 hzTest(th,qqplot=T)
 mardiaTest(th,qqplot=T)
-uniNorm(th,type="SW",desc=T)
-mvOutlier(th, qqplot = TRUE, method = "adj.quan") 
+(unrm <- uniNorm(th,type="SW",desc=T))# summary statistics and Shipiro-Wilks normality test
+write.table(unrm$`Descriptive Statistics`,"clipboard",sep="\t",col.names=NA) # In Excel, press Ctrl+V 
+
+mvOutlier(th, qqplot = TRUE, method = "adj.quan")
+
 
 #**********************************************
 ## What variables have the highest correlation?
@@ -164,12 +174,12 @@ rownames(th)<-ip#changes row number to site number for biplot site number (must 
 # proportion of variance is eigenvalues for each PC
 
 with(th,
-     {biplot(pca, main = "Biplot", arrow.len=0.05,expand=0.9, cex=c(.75,.75), col=c("grey","darkgreen"),
-            xlab="PC1 (39.9%)", ylab="PC2 (19.3%)")
+     {biplot(pca, main = "", arrow.len=0.05,expand=0.9, cex=c(.75,.75), col=c("grey","darkgreen"),
+            xlab="PC1 (39.9% variance)", ylab="PC2 (19.3% variance)")
      abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
      abline(h=(seq(0,100,25)), col="lightgray", lty="dotted")
      mtext('Unconstrained  <----->  Constrained', side=4, line=-1)
-     mtext('High gradient,small  <----->  Low gradient, large', side=1, line=2.2)
+     mtext('High gradient,small  <----->  Low gradient, large', side=3, line=2.2)
      ## PC1 is habitat size (flow), and a channel gradient (slope)
      ## PC2 is valley constraint (VWI), and sediment transport (GEP)
      ## Flow and gradient are opposite sign indicating the best predictor seperation between A/P
@@ -184,7 +194,7 @@ with(th,
      
      # biplot: Scale for sites(PC matrix-pca$scores) on top, scale for variables (vectors-loadings) along bottom
      round(pca$scores[ ,c(1:4)],2) # PC Matrix (eigenvalues); use to plot PC1 vs PC2
-     pc <- round(pca$loadings[,c(1:3)],3) # The matrix of variable loadings (i.e, colums of Eigenvectors)
+     (pc <- round(pca$loadings[,c(1:3)],3)) # The matrix of variable loadings (i.e, colums of Eigenvectors)
      write.table(pc,"clipboard",sep="\t",col.names=NA) # In Excel, press Ctrl+V 
      
      library(vegan)
@@ -246,7 +256,18 @@ with(r,
      plot(cr16,pca$scores[,2],pch=17,col="darkgreen",ylab = "PC 2", xlab="Chum redd density 2016")
      ## Both chum and pink redd density increased toward larger low gradienet habitat (PC1) &
      ## unconfined channels (PC 2) - Low ave flows
+     
+     ## Look at densities for PC3 also
+     par(mfrow=c(2,2))
+     plot(pr16,pca$scores[,1],pch=16,col="blue",ylab = "PC 1", xlab="Pink redd density 2016")
+     plot(pr16,pca$scores[,3],pch=16,col="blue",ylab = "PC 3", xlab="Pink redd density 2016")
+     plot(cr16,pca$scores[,1],pch=17,col="darkgreen",ylab = "PC 1", xlab="Chum redd density 2016")
+     plot(cr16,pca$scores[,3],pch=17,col="darkgreen",ylab = "PC 3", xlab="Chum redd density 2016")
+     
+     
 })
+
+
 ## Pink analysis:
 ## 2015-high flow: The data sugests that the higher densities associated with all channels that converge to unconfined
 ## 2016-low flow: The data sugests that the higher densities converge to large unconfined channel

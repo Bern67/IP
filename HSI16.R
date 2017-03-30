@@ -59,11 +59,11 @@ rm(cm,h_c)
 par(mfrow=c(2,3))
 plot(c_ip$Gradient, c_ip$ip, xaxt = "n", xlab='',ylab='',xlim=c(0,.06))
 par(new=T)
-x <- c(0,.0035,.033,.05,.05)#variables for NetMap, 5% for PNW (Sheer 2009, WDFW 2009)
+x <- c(0,.0030,.030,.05,.05)#variables for NetMap, 5% for PNW (Sheer 2009, WDFW 2009)
 y <- c(1,1,0,0,0)#variables for NetMap
 plot(x,y, type='l',lwd=2, col='darkgreen',xlab=expression(paste('Channel gradient ', (m/m))),ylab='IP Index')
-grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
-     lwd = par("lwd"), equilogs = TRUE)
+#grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
+#     lwd = par("lwd"), equilogs = TRUE)
 ## Gradient was observed to be more a barrier to Cm than Pk, as indicated by adults present.
 
 plot(c_ip$Mean_Q, c_ip$ip, main='Chum HSI', xaxt = "n", xlab='',ylab='',xlim=c(0,15))

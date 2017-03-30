@@ -157,7 +157,7 @@ set.seed(167)
 ## log transformation response variable to reduce heteroscedasticity (Breiman 2008,p586)
 #tuneRF(p15d[,-1],p15d$pr15,ntree=10000,stepFactor = 2,improve=0.05,trace = F,plot=T, doBest=T)
 (p15.rf <- randomForest(log(pr15+1) ~.,data = p15d, mtry=8, importance=T, corr.bias=F,proximity=F, 
-                        do.trace=1000, ntree=10000))# view results
+                        do.trace=1000, ntree=5000))# view results
 round(mean(p15.rf$rsq),3)#Pseudo R-sqr.
 ## The %IncMSE is the variance of the predictor, IncNode Purity is the RSS for the predictor
 ## Variable is important if > absolute value of lowest predictor importance value (%IncMSE for regression, MDA for classification)
