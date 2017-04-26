@@ -1,5 +1,6 @@
 ## Field vs hnl2 analysis:
 ## Including VWI, BFW, MAQ, D50, BFD
+## LPL is in LP script
 
 op <- par(mfrow=c(1,1))
 ##------ VWI Analysis ------
@@ -172,7 +173,7 @@ with(bfd,
       (summary(bfd_mod))
       par(new=T)
       curve(0.75909*x^0.27979, xlim=range(f_bfd), ylim=c(0.05,.81),
-            col="darkgreen",lwd= 2,xlab="Field BFD (m)", ylab="DEM hnl2 BFD (m)")
+            col="darkgreen",lwd= 2,xlab="Field bankfull depth (m)", ylab="Modeled bankfull depth (m)")
       grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
            lwd = par("lwd"), equilogs = TRUE)
       ## R-sqr
@@ -180,7 +181,7 @@ with(bfd,
       (TSS <- sum((bfd$hnl2_bfd - mean(bfd$hnl2_bfd))^2))  # Total sum of squares
       (cd <- round(1 - (RSS.p/TSS),2)) # Coefficient of determination;R-squared
       (cf <- round(coef(bfd_mod), 2)) # Model coefficient (a,b)
-      eq <- paste0("DEM BFD (m) = ", cf[1],'* Field BFD (m)^', cf[2])
+      eq <- paste0("Model BFD (m) = ", cf[1],'* Field BFD (m)^', cf[2])
       ## printing of the equation
       mtext(eq, side=3, line=-2,cex=.85)#side: (1=bottom, 2=left, 3=top, 4=right)
       mtext(as.expression(substitute(R^2==cd,list(cd=cd))),3,-3.5,cex=.85)

@@ -56,51 +56,64 @@ rm(cm,h_c)
 #--------- HSI Curves --------------
 
 ## Chum HSI for both 2015 & 2016
-par(mfrow=c(2,3))
+par(mfrow=c(3,2))
 plot(c_ip$Gradient, c_ip$ip, xaxt = "n", xlab='',ylab='',xlim=c(0,.06))
 par(new=T)
-x <- c(0,.0030,.030,.05,.05)#variables for NetMap, 5% for PNW (Sheer 2009, WDFW 2009)
+x <- c(0,.0030,.030,.05,.06)#variables for NetMap, 5% for PNW (Sheer 2009, WDFW 2009)
 y <- c(1,1,0,0,0)#variables for NetMap
-plot(x,y, type='l',lwd=2, col='darkgreen',xlab=expression(paste('Channel gradient ', (m/m))),ylab='IP Index')
+plot(x,y, type='l',lwd=2, col='darkgreen',xlab=expression(paste('Channel gradient ', (m/m))),ylab='IP Index',
+     main='Chum salmon')
+abline(h=0,lty=2,col="grey")
+abline(v=0,lty=2,col="grey")
 #grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted",
 #     lwd = par("lwd"), equilogs = TRUE)
 ## Gradient was observed to be more a barrier to Cm than Pk, as indicated by adults present.
-
-plot(c_ip$Mean_Q, c_ip$ip, main='Chum HSI', xaxt = "n", xlab='',ylab='',xlim=c(0,15))
-par(new=T)
-x <- c(0,.25,5.5,11.5,15)
-y <- c(0,1,1,.45,.45)
-plot(x,y, type='l',lwd=2,col='darkgreen',xlab=expression(paste('Mean annual stream flow ', (m^3/s))), ylab='IP Index')
-## Calibrated VWI?
-plot(c_ip$VWI, c_ip$ip, xaxt = "n", xlab='',ylab='',xlim=c(1,12))#Based on random forest & RSR (Moore 2002)
-par(new=T)
-## 2.18 & 8.82 from VWI analysis, used all anadromous channels <5% in hnl2
-x <- c(1,3.18,8.5,10,12)# Based on resource selection ratio analysis
-y <- c(.3,.3,1,1,1)
-plot(x,y, type='l',lwd=2,col='darkgreen',xlim=c(1,12),ylim=c(0,1),xlab='Callibrated valley width index',ylab='IP Index')
-
 
 ## Pink HSI for both 2015 & 2016
 plot(p_ip$Gradient, p_ip$ip, xaxt = "n", xlab='',ylab='',xlim=c(0,.06))
 par(new=T)
 x <- c(0,.011,.011,.046,.06)#variables for NetMap, & adult Pk 2015 P/A survey (Grad.< 4.6%)
 y <- c(1,1,1,0,0)
-plot(x,y, type='l',lwd=2, col='darkgreen',xlab=expression(paste('Channel gradient ', (m/m))),ylab='IP Index')
+plot(x,y, type='l',lwd=2, col='darkgreen',xlab=expression(paste('Channel gradient ', (m/m))),ylab='Index score',
+     main="Pink salmon")
+abline(h=0,lty=2,col="grey")
+abline(v=0,lty=2,col="grey")
 ## slope for pinks is slightly better because we have both IP survey & distribution
-
+## chum
+plot(c_ip$Mean_Q, c_ip$ip, xaxt = "n", xlab='',ylab='',xlim=c(0,15))
+par(new=T)
+x <- c(0,.25,5.5,11.5,15)
+y <- c(0,1,1,.45,.45)
+plot(x,y, type='l',lwd=2,col='darkgreen',xlab=expression(paste('Mean annual stream flow ', (m^3/s))), ylab='Index score')
+abline(h=0,lty=2,col="grey")
+abline(v=0,lty=2,col="grey")
+## pink
 plot(p_ip$Mean_Q, p_ip$ip, main='Pink HSI', xaxt = "n", xlab='',ylab='',xlim=c(0,15))
 par(new=T)
 x <- c(0,.15,.5,11.5,15)
 y <- c(0,1,1,.25,.25)
-plot(x,y, type='l',lwd=2,col='darkgreen',xlab=expression(paste('Mean annual stream flow ', (m^3/s))),ylab='IP Index')
+plot(x,y, type='l',lwd=2,col='darkgreen',xlab=expression(paste('Mean annual stream flow ', (m^3/s))),ylab='Index score')
+abline(h=0,lty=2,col="grey")
+abline(v=0,lty=2,col="grey")
 ## 2.18 & 8.82 from VWI analysis, used all anadromous channels <5% in hnl2
+
+## Calibrated VWI? not calibrated because used raw data.  Calibrated in RSR
+plot(c_ip$VWI, c_ip$ip, xaxt = "n", xlab='',ylab='',xlim=c(1,12))#Based on RSR (Moore 2002)
+par(new=T)
+## 2.18 & 8.82 from VWI analysis, used all anadromous channels <5% in hnl2
+x <- c(1,3.18,8.5,10,12)# Based on resource selection ratio analysis
+y <- c(.3,.3,1,1,1)
+plot(x,y, type='l',lwd=2,col='darkgreen',xlim=c(1,12),ylim=c(0,1),xlab='Valley width index',ylab='IP Index')
+abline(0,0,lty=2,col="grey")
+abline(v=1,lty=2,col="grey")
 
 plot(p_ip$VWI, p_ip$ip, xaxt = "n", xlab='',ylab='',xlim=c(1,12))
 par(new=T)
 x <- c(1,2.18,7.5,12)# Based on resource selection ratio analysis
 y <- c(.1,.1,1,1)
-plot(x,y, type='l', xlim=c(1,12), ylim=c(0,1), lwd=2, col='darkgreen',xlab='Calibrated valley-width index',ylab='IP Index')
-
+plot(x,y, type='l', xlim=c(1,12), ylim=c(0,1), lwd=2, col='darkgreen',xlab='Valley width index',ylab='IP Index')
+abline(0,0,lty=2, col="grey")
+abline(v=1,lty=2, col="grey")
 ## Use binary recursive partisioning, or moving average for thresholds.  The focus of the HSC should be
 ## on the main bulk of the data, not one outlier.
 ## Or, use 75th percentile to remove extreme outliers to seperate from lower values
@@ -110,6 +123,65 @@ plot(x,y, type='l', xlim=c(1,12), ylim=c(0,1), lwd=2, col='darkgreen',xlab='Cali
 
 ## Spawning flow (Bjornn 1991,p.91;)
 ## Flow velocity comparison below
+
+# *********************
+### ***** Plot of Index suitability curves only ********** 
+# *********************
+
+par(mfrow=c(3,2),oma=c(2,2,2,2),mar=c(4,3.75,3.75,2.5),las=1)
+## chum Q
+x <- c(0,.25,5.5,11.5,15)
+y <- c(0,1,1,.45,.45)
+plot(x,y, type='l',lwd=2,col='darkgreen',xlab=expression(paste('Mean annual stream flow ', (m^3/s))), ylab='Index score',
+     main='Chum salmon')
+abline(h=0,lty=2,col="grey")
+abline(v=0,lty=2,col="grey")
+text(1,.9,"a")
+## pink 
+x <- c(0,.15,.5,11.5,15)
+y <- c(0,1,1,.25,.25)
+plot(x,y, type='l',lwd=2,col='darkgreen',xlab=expression(paste('Mean annual stream flow ', (m^3/s))),ylab='Index score',
+     main="Pink salmon")
+abline(h=0,lty=2,col="grey")
+abline(v=0,lty=2,col="grey")
+text(1,.9,"b")
+## chum 
+x <- c(0,.0030,.030,.05,.06)#variables for NetMap, 5% for PNW (Sheer 2009, WDFW 2009)
+y <- c(1,1,0.01,0.01,0.01)#variables for NetMap
+plot(x,y, type='l',lwd=2, col='darkgreen',ylim=c(0,1),xlim = c(0,.08),
+     xlab=expression(paste('Channel gradient ', (m/m))),ylab='Index score')
+abline(h=0,lty=2,col="grey")
+abline(v=0,lty=2,col="grey")
+text(.0025,.9,"c")
+## pink
+x <- c(0,.011,.011,.046,.08)#variables for NetMap, & adult Pk 2015 P/A survey (Grad.< 4.6%)
+y <- c(1,1,1,0.01,0.01)
+plot(x,y, type='l',lwd=2, col='darkgreen',ylim=c(0,1),
+     xlab=expression(paste('Channel gradient ', (m/m))),ylab='Index score')
+abline(h=0,lty=2,col="grey")
+abline(v=0,lty=2,col="grey")
+text(.0025,.9,"d")
+## Chum VWI
+x <- c(1,3.18,8.5,10,12)# Based on resource selection ratio analysis
+y <- c(.3,.3,1,1,1)
+plot(x,y, type='l',lwd=2,col='darkgreen',xlim=c(1,12),ylim=c(0,1),xlab='Valley-width index',ylab='Index score')
+abline(0,0,lty=2,col="grey")
+abline(v=1,lty=2,col="grey")
+text(1.5,.9,"e")
+## Pink VWI
+x <- c(1,2.18,7.5,12)# Based on resource selection ratio analysis
+y <- c(.1,.1,1,1)
+plot(x,y, type='l', xlim=c(1,12), ylim=c(0,1), lwd=2, col='darkgreen',xlab='Valley-width index',ylab='Index score')
+text(1.5,.9,"f")
+abline(0,0,lty=2, col="grey")
+abline(v=1,lty=2, col="grey")
+
+
+
+
+
+
+
 
 
 #***********************************

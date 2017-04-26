@@ -61,8 +61,8 @@ symbols(q_dt$POINT_Y~q_dt$POINT_X,circles=redd$pr15, fg = "grey17", inches=0.15,
 text(-135.6,58.1,paste("Downstream"), col = "grey17")
 text(-135.3, 57.92, paste("Upstream"), col="grey17")
 text(-135.1, 57.92, paste("2015"), font=2, col="grey17")
-#mtext("Pink Redd Density",side=3,line=-3,cex=1,outer=TRUE, col="grey17")
-title(main="Pink Redd Density", ylab="Latitude",xlab="Longitude")
+mtext("Pink Redd Density",side=3,line=-3,cex=1,outer=T, col="grey17")
+title(ylab="Latitude",xlab="Longitude")
 
 plot(basin,lwd=2,bg="white",fg="grey67",axes=T)
 plot(crk,lwd=1,add=T, col="lightblue",axes=F)
@@ -74,15 +74,14 @@ plot(basin,lwd=2,bg="white",fg="grey67",axes=T)
 plot(crk,lwd=1,add=T,col="lightblue",axes=F)
 symbols(q_dt$POINT_Y~q_dt$POINT_X,circles=redd$cr15, fg = "grey17", inches=0.15, add=T, lwd=2)
 text(-135.1, 57.92, col="grey17", font=2, paste("2015"))
-#mtext("Chum Redd Density",side=1,line=-17,cex=1,outer=TRUE, col="grey17")
-title(main="Chum redd density", ylab="Latitude",xlab="Longitude")
+mtext("Chum Redd Density",side=3,line=-30,cex=1,outer=T, col="grey17")
+title(ylab="Latitude",xlab="Longitude")
 
 plot(basin,lwd=2,bg="white",fg="grey67",axes=T)
 plot(crk,lwd=1,add=T,col="lightblue",axes=T)
 symbols(q_dt$POINT_Y~q_dt$POINT_X,circles=redd$cr16, fg = "grey17", inches=0.15, add=T, lwd=2)
 text(-135.1, 57.92, paste("2016"), font=2, col="grey17")
 title(ylab="Latitude",xlab="Longitude")
-
 
 
 ## Proportion of redd for each species per reach

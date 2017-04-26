@@ -51,15 +51,17 @@
 redd <- read.csv("redd.csv")
 r <-redd[,c(21:24)] # redd density
 hnl2 <- read.csv("D:/R/IP16/hnl2.csv")
-#h <-hnl2[,-c(1:2,4:6,8:9,14,23,25)] #Only variables for within reach, independant, not linear combination,
+## Only variables for within reach, independant, not linear combination,
 ## and ecologicly important.  Plotted and compared Person correlations in PCA  script.
-h1 <- hnl2[,-c(1,6)]# Compare both outputs in randomForest
+h <- hnl2[,c("OUT_DIST","MNANPRC_M","MEANANNCMS","BFQ","p_trib","GRADIENT","GRAD_D","FP_WIDTH","VWI_Floor","GEP",
+             "GEP_Cum","SINUOSITY","ELEV_M")]
+
 hcat <-read.csv("ip_habcat.csv")
 rm(hnl2)
 
-pr15 <-r[,"pr15"]
-p15d <-cbind(pr15,h1)# data for normal dist of pink 2015 redd density
-rm(pr15)
+#pr15 <-r[,"pr15"]
+#p15d <-cbind(pr15,h1)# data for normal dist of pink 2015 redd density
+#rm(pr15)
 
 ## Habitat summary table
 library(MVN)# reference MVN.pdf
@@ -72,78 +74,24 @@ uniPlot(h1, type='box')# Single boxplot with center & normalized
 
 ## Logistic Presence/absence for cm & pk 2015 & 2016
 ## Need to first create presence/absence (0/1) for each species
+
+r$ppa15 <- as.factor(with(redd,ifelse(ppa15 =="p", 1,
+                                      ifelse(ppa15=="a",0,""))))
 r$pr16 <- as.factor(with(r,ifelse(r$pr16 == 0, 0,#absent
                                    ifelse(r$pr16 >0 , 1,""))))#present
 r$cr15 <- as.factor(with(r,ifelse(r$cr15 == 0, 0,#absent
                                    ifelse(r$cr15 >0 , 1,""))))#present
 r$cr16 <- as.factor(with(r,ifelse(r$cr16 == 0, 0,#absent
                                    ifelse(r$cr16 >0 , 1,""))))#present
+ppa15 <- r$ppa15
+p15 <- cbind(ppa15,h)
 pr16 <-r[,"pr16"]
-p16 <- cbind(pr16,h1)
+p16 <- cbind(pr16,h)
 cr15 <- r[,"cr15"]
-c15 <- cbind(cr15,h1)
+c15 <- cbind(cr15,h)
 cr16 <- r[,"cr16"]
-c16 <- cbind(cr16,h1)
-rm(cr15,cr16,pr16)
-
-#----------RPART Analysis-----------
-#****************************************************
-## Recursive partitioning and regression tree (RPART)
-#****************************************************
-library(rpart)
-## Regression tree
-summary(rt0 <- rpart(formula= log(pr15+1) ~., xval=10, data = p15d))
-## log trans response variable to reduce heteroscedasticity (Breiman 2008,p586)
-names(summary(rt0))
-print(rt0)
-#printcp(rt0)#Also in summary
-plot(rt0, uniform=T, branch=.4,compress=T,margin=0.1)#Most important variable?
-text(rt0,use.n=T,all=T,fancy=F)
-
-plot(r$pr15~h1$GRADIENT)
-abline(v=0.016,lty=2,col="grey")#Outliers are lower gradient in field
-abline(h=3.5,lty=2,col="grey")
-
-par(mfrow=c(2,2))
-rsq.rpart(rt0)#The first and second split offer the most information (R^2 plot)
-## The relative error plot suggests that tree should be pruned at 1st split, others do not decrease error
-plot(predict(rt0),resid(rt0))# There is more variability at node 3, then 5,9,and 8
-axis(3,at=rt0$frame$yval[rt0$frame$var=='<leaf>'],
-     labels=row.names(rt0$frame)[rt0$frame$var=='<leaf>'])
-mtext('leaf number',side=3, line=3)
-abline(0,0,lty=2,lwd=1,col="darkgrey")
-printcp(rt0)
-plotcp(rt0)# visualize cross-validation results
-
-
-## Classification tree - Pink 16
-summary(rt1 <- rpart(formula= pr16 ~.,data = p16, xval=10, method="class"))
-print(rt1)
-## Method is class due to binomial P/A
-plot(rt1, uniform=T, branch=.4,compress=T,margin=0.1)#Most important variable?
-text(rt1,use.n=T,all=T,fancy=F)
-printcp(rt1)
-plotcp(rt1)# visualize cross-validation results
-
-
-## Classification tree - Chum 15
-summary(rt2 <- rpart(formula= cr15 ~., xval=10, data = c15, method="class"))#Most important variable?
-plot(rt2, uniform=T, branch=.4,compress=T,margin=0.1)#Most important variable?
-text(rt2,use.n=T,all=T,fancy=T)
-printcp(rt2)
-plotcp(rt2)# visualize cross-validation results
-
-
-## Classification tree - Chum 16
-summary(rt3 <- rpart(cr16 ~., xval=10, data = c16, method="class"))#Most important variable?
-plot(rt3, uniform=T, branch=.4,compress=T,margin=0.1)#Most important variable?
-text(rt3,use.n=T,all=T,fancy=T)
-#post(rt3, file = "D:/R/Keta/Fig/tree_c16.jpg",
-#     title = "Regression Tree for Chum 2016")
-printcp(rt3)
-plotcp(rt3)# visualize cross-validation results
-
-
+c16 <- cbind(cr16,h)
+rm(ppa15,cr15,cr16,pr16)
 
 
 #---------- RF -----------
@@ -152,18 +100,22 @@ plotcp(rt3)# visualize cross-validation results
 
 ## Pink 2015 Regression Random Forest predictor importance
 library(randomForest)
-(27/3)# number of 'mtry' regression predictors to use for each random forest
-set.seed(167)
+(13/3)# number of 'mtry' regression predictors to use for each random forest
 ## log transformation response variable to reduce heteroscedasticity (Breiman 2008,p586)
 #tuneRF(p15d[,-1],p15d$pr15,ntree=10000,stepFactor = 2,improve=0.05,trace = F,plot=T, doBest=T)
-(p15.rf <- randomForest(log(pr15+1) ~.,data = p15d, mtry=8, importance=T, corr.bias=F,proximity=F, 
+#round(mean(p15.rf$rsq),3)#Pseudo R-sqr.
+
+## Pink 2015 Classificaiton RF
+(sqrt(13))
+set.seed(167)
+(p15.rf <- randomForest(ppa15~.,data = p15, mtry=4, importance=T, corr.bias=F,proximity=F, 
                         do.trace=1000, ntree=5000))# view results
-round(mean(p15.rf$rsq),3)#Pseudo R-sqr.
+
 ## The %IncMSE is the variance of the predictor, IncNode Purity is the RSS for the predictor
 ## Variable is important if > absolute value of lowest predictor importance value (%IncMSE for regression, MDA for classification)
 varImpPlot(p15.rf,sort=T,n.var=min(28,nrow(p15.rf$importance)),
            main = "Variable Importance (Pink 2015)") # 
-abline(v=3,lty=2,col="grey")#Predictor cutoff-Elbow where index is no longer reduced by a factor of 2X previous diff
+#abline(v=3,lty=2,col="grey")#Predictor cutoff-Elbow where index is no longer reduced by a factor of 2X previous diff
 ## Before model interpretaiton, make sure error stabalizes
 plot(p15.rf)# Cross validaiton error; Numbers of trees set to ensure that every input row gets predicted at least a few times.
 
@@ -177,7 +129,7 @@ text(x=c(1:28),p$IncNodePurity,p$n,cex=.5)
 
 ## Partial dependence plots
 par(mfrow=c(2,2),oma=c(1,1,1,0))
-partialPlot(p15.rf,p15d,OUT_DIST)# presence of pink redd is associated with out dist > 12
+partialPlot(p15.rf,ppa15,GRADIENT)# presence of pink redd is associated with out dist > 12
 abline(v=12.5,lty=2,col="grey")
 partialPlot(p15.rf,p15d,VWI_Floor)#The presence of pink redds is associated with VWI > 4
 abline(v=40,lty=2,col="grey")
@@ -191,12 +143,12 @@ mtext("Logit probability presence?", side=2, outer=TRUE, line=-1)
 
 ##-------- Pink 16 Random Forest classification predictor importance
 #*******************************
-(sqrt(27))# Number of 'mtry' predictors to use for each random forest in classificaiton
+(sqrt(13))# Number of 'mtry' predictors to use for each random forest in classificaiton
 set.seed(67)
-(p16.rf <- randomForest(pr16~.,data = p16, mtry=7, do.trace=500,
+(p16.rf <- randomForest(pr16~.,data = p16, mtry=4, do.trace=500,
                         importance=T, ntree=5000))# view results
 varImpPlot(p16.rf,sort=T,n.var=min(28,nrow(p16.rf$importance)), cex=1,#use grey scale
-           main = "Predictor Importance (Pink 2016)")
+           main = "Pink 2016")
 abline(v=2.85,lty=2,col="grey")
 plot(p16.rf,type="l")#Cross validation error; How many random trees to use for good performance
 ## Error rate or MSE
@@ -215,7 +167,7 @@ mtext("Logit probability presence", side=2, outer=TRUE, line=-1)
 ##*****************************
 library(randomForest)
 set.seed(67)
-(c15.rf <- randomForest(cr15~.,data = c15, mtry=11, do.trace=500, 
+(c15.rf <- randomForest(cr15~.,data = c15, mtry=4, do.trace=500, 
                         importance=T, ntree=5000))# view results
 varImpPlot(c15.rf,sort=T,n.var=min(28,nrow(c15.rf$importance)),
            main = "Variable Importance (Chum 2015")
@@ -249,7 +201,7 @@ text(x=c(1:28),p2$MeanDecreaseGini,p2$n,cex=.5)
 #********************************************
 library(randomForest)# Needed for confusion matrix and error rate
 set.seed(167)
-(c16.rf <- randomForest(cr16~.,data = c16, mtry=2, do.trace=500, proximity=T, 
+(c16.rf <- randomForest(cr16~.,data = c16, mtry=4, do.trace=500, proximity=T, 
                         importance=T, ntree=5000))# view results
 varImpPlot(c16.rf,sort=T,n.var=min(28,nrow(c16.rf$importance)),#significant predictors of redd density
            main = "Variable Importance (Chum 2016)")# Biased toward correlated predictors, compare with party below
@@ -266,7 +218,7 @@ p3 <- as.data.frame(c16.rf$importance)
 p3$n <- rownames(p3)
 p3 <- p3[rev(order(p3$MeanDecreaseGini)),]#In reverse order for plot
 plot(p3$MeanDecreaseGini,type = "h", 
-     ylab="Mean Decrease Gini", main = paste("Variable Importance (Chum 2016)"))
+     ylab="Mean Decrease Gini", main = paste("Chum 2016 variable importance"))
 text(x=c(1:28),p3$MeanDecreaseGini,p3$n,cex=.5)
 
 ## Partial dependence plots
@@ -282,6 +234,36 @@ partialPlot(c16.rf,c16,VWI_Floor)# Use to verify constrained channel difference 
 abline(v=c(3.1,9),lty=2,col="grey")
 mtext("Logit probability of presence", side=2, outer=TRUE, line=-1) 
 
+
+## ******** Variable imporance plots for all P/A 
+pk15 <- p15.rf$importance[,2]
+pk16 <- p16.rf$importance[,4]
+cm15 <- c15.rf$importance[,4]
+cm16 <- c16.rf$importance[,4]
+v_imp <- as.data.frame(cbind(pk15,pk16,cm15,cm16))
+rm(pk15,pk16,cm15,cm16)
+v_imp$n <- rownames(v_imp)
+
+par(mfrow=c(2,2))
+p1 <- v_imp[rev(order(v_imp$pk15)),]# set the order
+plot(p1$pk15,type = "h", xlim=c(0,14), 
+     ylab="Mean decrese Gini index", xlab="Variable", main = paste("Pink 2015"))
+text(x=c(1:13),p1$pk15,p1$n,cex=.7)
+
+p2 <- v_imp[rev(order(v_imp$pk16)),]# set the order
+plot(p2$pk16,type = "h", xlim=c(0,14), 
+     ylab="Mean decrease Gini index",xlab="Variable", main = paste("Pink 2016"))
+text(x=c(1:13),p2$pk16,p2$n,cex=.7)
+
+c1 <- v_imp[rev(order(v_imp$cm15)),]
+plot(c1$cm15,type = "h", xlim=c(0,14), 
+     ylab="Mean decrease Gini index",xlab="Variable", main = paste("Chum 2015"))
+text(x=c(1:13),c1$cm15,c1$n,cex=.7)
+
+c2 <- v_imp[rev(order(v_imp$cm16)),]
+plot(c2$cm16,type = "h", xlim=c(0,14), 
+     ylab="Mean decrease Gini index",xlab="Variable", main = paste("Chum 2016"))
+text(x=c(1:13),c2$cm16,c2$n,cex=.7)
 
 #----------------------------------------------------
 ## Used for unsupervised learning when no class labels (ex. Present/Absent)

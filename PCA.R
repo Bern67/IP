@@ -9,8 +9,10 @@
 ## units of measure, need to standardize variables and use correlation matrix if the data is somewhat multinormal
 ## Default is correlation matrix, so only need to scale (standardize to Z-score)
 
+## The habitat data is the response, and the overlaid redd data is the predictor variable
+
 ## PCA:
-## Eigenvector is the sum of the loadings on each axis
+## Eigenvector is the sum of the loadings on each axis; PC1 is an eigenvector
 
 
 ##-----Know your data ----
@@ -83,7 +85,8 @@ for (i in 1:ncol(cp)){
 
 ##Different multi-normality tests from the MVN package
 ip <- hnl2$ip
-h <- hnl2[,-c(1,6)]#No ip number column, & FROM_DIST is a redundant variable; see line 111
+## ******** REmoved colinear and redundant variabl *********
+h <- hnl2[,-c(1,6,8,10)]#No ip number column, & FROM_DIST is a redundant variable; see line 111
 names(h)
 
 ##Multinorm test
@@ -130,7 +133,7 @@ mshapiro.test(t(h)) #data has to be a matrix and has to be transposed
 
 #Continuous predictor (log = ln;natural log, log10 = log base 10)
 hb <- h[,c('WIDTH_M',"BFQ")]
-h_ln <- log(h[,-c(9,16)]+1)# all others log transformed
+h_ln <- log(h[,-c(7,14)]+1)# all others log transformed
 
 th <-  cbind(h_ln,hb)#transformed habitat data
 rm(h_ln,hb)
@@ -170,16 +173,17 @@ mhc(h[2:27], 27)#Show top 20 correlations
 ## ||||||||||||||||||
 require(MASS) #loads the PCA package
 rownames(th)<-ip#changes row number to site number for biplot site number (must be unique)
-(summary(pca <- princomp(scale(th)))) #creates a PC matrix using the correlation matrix; scales & centers different variables
-# proportion of variance is eigenvalues for each PC
+(summary(pca <- princomp(scale(th), cor=T))) #creates a PC matrix using the correlation matrix; scales & centers different variables
+signif(pca$sdev^2,4)#eigenvalues = sd^2
 
+## Biplot and assumption plots
 with(th,
      {biplot(pca, main = "", arrow.len=0.05,expand=0.9, cex=c(.75,.75), col=c("grey","darkgreen"),
-            xlab="PC1 (39.9% variance)", ylab="PC2 (19.3% variance)")
+            xlab="PC1 (42.1% variance)", ylab="PC2 (20.9% variance)")
      abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
      abline(h=(seq(0,100,25)), col="lightgray", lty="dotted")
-     mtext('Unconstrained  <----->  Constrained', side=4, line=-1)
-     mtext('High gradient,small  <----->  Low gradient, large', side=3, line=2.2)
+#     mtext('Unconstrained  <----->  Constrained', side=4, line=-1)
+#     mtext('High gradient,small  <----->  Low gradient, large', side=3, line=2.2)
      ## PC1 is habitat size (flow), and a channel gradient (slope)
      ## PC2 is valley constraint (VWI), and sediment transport (GEP)
      ## Flow and gradient are opposite sign indicating the best predictor seperation between A/P
@@ -188,7 +192,7 @@ with(th,
      rownames(th)<-st
      (summary(pca <- princomp(scale(th)))) #creates a PC matrix using the c
      biplot(pca, main = "Biplot", arrow.len=0.05,expand=.95, cex=c(.75,.75), col=c("darkgreen","grey"),
-            xlab="PC1 (39.9%)", ylab="PC2 (19.3%)")
+            xlab="PC1 (42.1%)", ylab="PC2 (20.9%)")
      abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
      abline(h=(seq(0,100,25)), col="lightgray", lty="dotted")
      
@@ -220,7 +224,7 @@ with(th,
 })
 
 ## Bubbleplot of Pink redd density for 2015
-plot(pca$scores[ ,1], pca$scores[ ,2], type="p",xlab="PCA1 (39.9%)", ylab="PCA2 (19.3%)")
+plot(pca$scores[ ,1], pca$scores[ ,2], type="p",xlab="PCA1 (42.1%)", ylab="PCA2 (20.9%)")
 symbols(pca$scores[ ,1], pca$scores[ ,2],circles=r$pr15,inches=.5, fg = "white", 
         bg = "grey", add=T, lwd=2)  
 abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
@@ -232,7 +236,7 @@ mtext('Unconstrained  <----->  Constrained', side=4, line=1)
 with(r,
      {plh15 <- as.factor(plh15) #Need to change character to factor for pch to work as numeric
      plot(pca$scores[,1], pca$scores[,2], pch=c(17,16)[plh15],col=c("darkgreen","darkgrey")[r$plh15], 
-          lwd=2,cex=1.2,xlab="PCA 1 (39.9%)", ylab="PCA 2 (19.3%)")
+          lwd=2,cex=1.2,xlab="PCA 1 (42.1%)", ylab="PCA 2 (20.9%)")
      legend("topright",c("L","H"),pch=c(16,17),cex=1,col=c("grey","darkgreen"),inset=.01) 
      title(main="2015 Pink L/H Density")
      abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
@@ -264,7 +268,6 @@ with(r,
      plot(cr16,pca$scores[,1],pch=17,col="darkgreen",ylab = "PC 1", xlab="Chum redd density 2016")
      plot(cr16,pca$scores[,3],pch=17,col="darkgreen",ylab = "PC 3", xlab="Chum redd density 2016")
      
-     
 })
 
 
@@ -276,45 +279,41 @@ with(r,
 ## 2015-high flow: The pattern in the data suggests that densities are primarily larger channels converging to unconfined
 ## 2016-low flow:  The data suggests that densites transition from moderate to large habitat & confined to unconfined
 
-## Factor analysis: R Book
-## Are the correlations amongst variable explained by the common factors? 
-factanal(th,16)# compare with PCA loadings
-## Loadings such as depth, width, MAQ, gradient create habitat size on factor 1
-## Factor 2(PC 2) is loaded primarily with VWI, Val const, GEP
+
 
 ## ----- Pink 2015 P/A -----
 with(r,
      {par(mfrow=c(2,2))
        ppa15 <- as.factor(ppa15) #Need to change character to factor for pch to work as numeric
        plot(pca$scores[,1], pca$scores[,2], pch=c(16,17)[ppa15], col=c("darkgrey","darkgreen")[ppa15], 
-            lwd=2, cex=1.2, xlab="PCA 1 (39.9%)", ylab="PCA 2 (19.3%)")
-       legend("topright",c("A","P"), pch=c(16,17), cex=1, col=c("grey","darkgreen"),inset=.01) 
-       title(main="2015 Pink Absent/Present")
+            lwd=2, cex=1.2, xlab="PCA 1", ylab="PCA 2")
+       legend("topright",c("A","P"), pch=c(16,17), cex=1.1, col=c("grey","darkgreen"),inset=.01) 
+       title(main="Pink 2015")
        abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
        abline(h=(seq(0,100,25)), col="lightgray", lty="dotted")
        ## Pink 2016 P/A
        ppa16 <- as.factor(ppa16) #Need to change character to factor for pch to work as numeric
-       plot(pca$scores[,1], pca$scores[,2], pch=as.numeric(ppa16),col=c("grey","darkgreen")[ppa16], 
-            lwd=2,cex=1,xlab="PCA 1", ylab="PCA 2", sub = '      High grad., small hab <--------> Low grad., large hab.')
-       legend("topright",c("A","P"),pch=c(1,2),col=c("grey","darkgreen"),inset=.01) 
-       title(main="2016 Pink")
-       mtext('Unconstrained  <----->  Constrained', side=4, line=.75,cex=.75)
+       plot(pca$scores[,1], pca$scores[,2], pch=c(16,17)[ppa16],col=c("grey","darkgreen")[ppa16], 
+            lwd=2,cex=1.2,xlab="PCA 1", ylab="PCA 2")
+       legend("topright",c("A","P"),pch=c(16,17),cex=1.1, col=c("grey","darkgreen"),inset=.01) 
+       title(main="Pink 2016")
+       #mtext('Unconstrained  <----->  Constrained', side=4, line=.75,cex=.75)
        abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
        abline(h=(seq(0,100,25)), col="lightgray", lty="dotted")
        ## Chum 2015 P/A
        cpa15 <- as.factor(cpa15) #Need to change character to factor for pch to work as numeric
        plot(pca$scores[,1], pca$scores[,2], pch=c(16,17)[cpa15], col=c("grey","darkgreen")[cpa15], 
             lwd=2,cex=1.2, xlab="PCA 1", ylab="PCA 2")
-       legend("topright",c("A","P"),pch=c(16,17),col=c("grey","darkgreen"),inset=.01) 
-       title(main="2015 Chum A/P")
+       legend("topright",c("A","P"),pch=c(16,17),cex=1.1,col=c("grey","darkgreen"),inset=.01) 
+       title(main="Chum 2015")
        abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
        abline(h=(seq(0,100,25)), col="lightgray", lty="dotted")
        ## Chum 2016 P/A
        cpa16 <- as.factor(cpa16) #Need to change character to factor for pch to work as numeric
-       plot(pca$scores[,1], pca$scores[,2], pch=as.numeric(cpa16),col=c("grey","darkgreen")[cpa16], 
-            lwd=2,cex=1,xlab="PCA 1", ylab="PCA 2")
-       legend("topright",c("A","P"),pch=c(1,2),col=c("grey","darkgreen"),inset=.01) 
-       title(main="2016 Chum")
+       plot(pca$scores[,1], pca$scores[,2], pch=c(16,17)[cpa16],col=c("grey","darkgreen")[cpa16], 
+            lwd=2,cex=1.2,xlab="PCA 1", ylab="PCA 2")
+       legend("topright",c("A","P"),pch=c(16,17),cex=1.1,col=c("grey","darkgreen"),inset=.01) 
+       title(main="Chum 2016")
        abline(v=(seq(0,100,25)), col="lightgray", lty="dotted")
        abline(h=(seq(0,100,25)), col="lightgray", lty="dotted")
 })
@@ -324,6 +323,7 @@ with(r,
 ## to access more habitat in the small category.  In 2016, they moved into the larger habitat due to low flow.
 ## The Chum data is telling; It stays relatively the same with the exception of a few small tribs,
 ## regardless of the large difference in flow between years.
+
 
 
 ## ------- Same plots as above using ggplot ------
